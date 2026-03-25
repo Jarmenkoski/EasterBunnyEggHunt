@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pääsiäispupu Munajahti 🐰</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Intro Screen -->
+    <div id="screen-intro" class="screen active">
+        <div class="grass-bg"></div>
+        <div class="intro-content">
+            <div class="egg-scene">
+                <div id="egg-emoji" class="egg-emoji">🥚</div>
+                <div id="bunny-popup" class="bunny-popup hidden">🐰</div>
+            </div>
+            <div id="intro-speech" class="speech-bubble hidden">
+                <p>Hei! Minä olen <strong>Pääsiäispupu</strong>! 🐰</p>
+                <p>Oletko valmis pääsiäismunajahtiiin?</p>
+            </div>
+            <button id="btn-start" class="btn-primary hidden" onclick="startHunt()">
+                🥚 Aloita jahti!
+            </button>
+        </div>
+        <button class="btn-settings" onclick="showSettings()" title="Asetukset">⚙️</button>
+    </div>
+
+    <!-- Clue Screen -->
+    <div id="screen-clue" class="screen">
+        <div class="grass-bg"></div>
+        <div class="clue-content">
+            <div class="bunny-guide">
+                <div class="bunny-small">🐰</div>
+                <div class="speech-bubble small">
+                    <p id="clue-text">Etsi muna tästä paikasta!</p>
+                </div>
+            </div>
+            <div class="egg-counter">
+                <span id="egg-current">1</span> / <span id="egg-total">?</span> 🥚
+            </div>
+            <div class="clue-image-wrapper">
+                <img id="clue-image" src="" alt="Vihje - piilotuspaikka">
+                <div class="image-label">Etsi muna täältä!</div>
+            </div>
+            <button class="btn-found" onclick="eggFound()">
+                ✅ Löysin munan!
+            </button>
+        </div>
+    </div>
+
+    <!-- Found Screen -->
+    <div id="screen-found" class="screen">
+        <div class="grass-bg"></div>
+        <div id="confetti-container"></div>
+        <div class="found-content">
+            <div id="bunny-celebrate" class="bunny-celebrate">🐰</div>
+            <div class="speech-bubble large">
+                <p id="found-message">Hienoa! Löysit munan! 🎉</p>
+            </div>
+            <div class="stars-row">⭐⭐⭐</div>
+            <button id="btn-next" class="btn-primary" onclick="nextClue()">
+                Katso seuraava vihje →
+            </button>
+        </div>
+    </div>
+
+    <!-- Complete Screen -->
+    <div id="screen-complete" class="screen">
+        <div class="grass-bg"></div>
+        <div id="confetti-container-final"></div>
+        <div class="complete-content">
+            <div class="trophy-row">🏆</div>
+            <div class="bunny-big">🐰</div>
+            <div class="speech-bubble large">
+                <p><strong>Onneksi olkoon! 🎉</strong></p>
+                <p>Löysit kaikki munat!</p>
+                <p>Olet pääsiäismunajahdin <strong>mestari</strong>! 🌟</p>
+            </div>
+            <div class="eggs-row" id="final-eggs"></div>
+            <button class="btn-primary" onclick="restartHunt()">
+                🔄 Aloita alusta
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="screen-settings" class="screen">
+        <div class="settings-header">
+            <button class="btn-back" onclick="showIntro()">← Takaisin</button>
+            <h2>⚙️ Asetukset</h2>
+        </div>
+        <div class="settings-content">
+            <p class="settings-desc">Lisää kuvia piilotetuista munista järjestyksessä.</p>
+
+            <div id="images-list" class="images-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="add-image-section">
+                <input type="file" id="image-upload" accept="image/*" multiple style="display:none">
+                <button class="btn-primary" onclick="document.getElementById('image-upload').click()">
+                    📷 Lisää kuva(t)
+                </button>
+            </div>
+
+            <div class="settings-actions">
+                <button class="btn-danger" onclick="clearAllImages()">🗑️ Poista kaikki</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
