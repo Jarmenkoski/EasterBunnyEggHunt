@@ -1,13 +1,12 @@
 // ===== STATE =====
 const state = {
-    eggs: [],       // array of { id, dataUrl, name }
-    current: 0,     // current egg index (0-based)
+    eggs: [],
+    current: 0,
     hunting: false,
 };
 
 const STORAGE_KEY = 'easterbunny_eggs';
 
-// Finnish congratulation messages
 const CONGRATS = [
     'Hienoa! Löysit munan! 🎉',
     'Mahtavaa! Olet todella taitava! ⭐',
@@ -19,7 +18,6 @@ const CONGRATS = [
     'Wau! Olet paras munanetsijä koko maailmassa! 🌍',
 ];
 
-// Clue messages
 const CLUE_MSGS = [
     'Etsi muna tästä paikasta!',
     'Katso tarkkaan – muna odottaa sinua!',
@@ -28,14 +26,11 @@ const CLUE_MSGS = [
     'Juokse ja etsi – muna on täällä!',
 ];
 
-// ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
-    // Animation starts on egg click, not automatically
 });
 
-// ===== LOAD / SAVE =====
 function loadEggs() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -49,7 +44,6 @@ function saveEggs() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.eggs));
 }
 
-// ===== SPEECH =====
 function speak(text, pitch = 1.5, rate = 1.0) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -60,7 +54,6 @@ function speak(text, pitch = 1.5, rate = 1.0) {
     window.speechSynthesis.speak(utterance);
 }
 
-// ===== EGG CLICK + INTRO ANIMATION =====
 let eggClicked = false;
 
 function crackEgg() {
@@ -75,39 +68,33 @@ function crackEgg() {
 
     hintEl.style.display = 'none';
 
-    // Phase 1: shake
     eggEl.classList.remove('egg-idle');
     eggEl.classList.add('shaking');
 
-    // Phase 2: crack
     setTimeout(() => {
         eggEl.classList.remove('shaking');
         eggEl.textContent = '🐣';
         eggEl.classList.add('cracking');
     }, 1200);
 
-    // Phase 3: bunny pops up
     setTimeout(() => {
         eggEl.style.display = 'none';
         bunnyEl.classList.remove('hidden');
         bunnyEl.classList.add('popping');
     }, 1700);
 
-    // Phase 4: speech bubble + pupu puhuu
     setTimeout(() => {
         speechEl.classList.remove('hidden');
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
         speak('Hei! Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?');
     }, 2300);
 
-    // Phase 5: start button
     setTimeout(() => {
         btnStart.classList.remove('hidden');
         btnStart.style.animation = 'fadeSlideIn 0.4s ease';
     }, 2900);
 }
 
-// ===== SCREEN NAVIGATION =====
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -122,7 +109,6 @@ function showSettings() {
     showScreen('screen-settings');
 }
 
-// ===== HUNT FLOW =====
 function startHunt() {
     if (state.eggs.length === 0) {
         alert('Lisää ensin kuvia asetuksista! ⚙️\n\nNapauta asetukset-painiketta yläkulmassa.');
@@ -136,8 +122,8 @@ function startHunt() {
 function showClue() {
     const egg = state.eggs[state.current];
     const total = state.eggs.length;
-
     const clueMsg = pickRandom(CLUE_MSGS);
+
     document.getElementById('clue-image').src = egg.dataUrl;
     document.getElementById('egg-current').textContent = state.current + 1;
     document.getElementById('egg-total').textContent = total;
@@ -153,7 +139,6 @@ function eggFound() {
 
     document.getElementById('found-message').textContent = msg;
 
-    // Update "next" button for last egg
     const btnNext = document.getElementById('btn-next');
     if (isLast) {
         btnNext.textContent = '🏆 Katso lopputulos!';
@@ -176,7 +161,6 @@ function nextClue() {
 }
 
 function showComplete() {
-    // Fill trophy egg row
     const eggsRow = document.getElementById('final-eggs');
     eggsRow.textContent = '🥚'.repeat(Math.min(state.eggs.length, 12));
 
@@ -189,12 +173,11 @@ function restartHunt() {
     state.current = 0;
     eggClicked = false;
 
-    // Reset egg scene
-    const eggEl   = document.getElementById('egg-emoji');
-    const bunnyEl = document.getElementById('bunny-popup');
+    const eggEl    = document.getElementById('egg-emoji');
+    const bunnyEl  = document.getElementById('bunny-popup');
     const speechEl = document.getElementById('intro-speech');
     const btnStart = document.getElementById('btn-start');
-    const hintEl  = document.getElementById('egg-hint');
+    const hintEl   = document.getElementById('egg-hint');
 
     eggEl.style.display = '';
     eggEl.textContent = '🥚';
@@ -207,7 +190,6 @@ function restartHunt() {
     showIntro();
 }
 
-// ===== SETTINGS =====
 function setupFileUpload() {
     const input = document.getElementById('image-upload');
     input.addEventListener('change', async (e) => {
@@ -222,7 +204,6 @@ function setupFileUpload() {
         }
         saveEggs();
         renderSettingsList();
-        // Reset the input so same files can be re-added
         input.value = '';
     });
 }
@@ -278,15 +259,11 @@ function clearAllImages() {
     renderSettingsList();
 }
 
-// ===== CONFETTI =====
 function launchConfetti(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-
     const colors = ['#f4c842', '#ff6b9d', '#5cb85c', '#9b59b6', '#3498db', '#e74c3c', '#ff8c00'];
-    const count = 60;
-
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 60; i++) {
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
         piece.style.left = Math.random() * 100 + 'vw';
@@ -299,12 +276,9 @@ function launchConfetti(containerId) {
         piece.style.animationDelay = (Math.random() * 0.8) + 's';
         container.appendChild(piece);
     }
-
-    // Clean up after animation
     setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
-// ===== UTILS =====
 function fileToDataUrl(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();

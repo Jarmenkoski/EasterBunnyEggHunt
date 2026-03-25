@@ -95,18 +95,13 @@
         </div>
         <div class="settings-content">
             <p class="settings-desc">Lisää kuvia piilotetuista munista järjestyksessä.</p>
-
-            <div id="images-list" class="images-list">
-                <!-- Dynamically populated -->
-            </div>
-
+            <div id="images-list" class="images-list"></div>
             <div class="add-image-section">
                 <input type="file" id="image-upload" accept="image/*" multiple style="display:none">
                 <button class="btn-primary" onclick="document.getElementById('image-upload').click()">
                     📷 Lisää kuva(t)
                 </button>
             </div>
-
             <div class="settings-actions">
                 <button class="btn-danger" onclick="clearAllImages()">🗑️ Poista kaikki</button>
             </div>
