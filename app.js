@@ -182,7 +182,7 @@ function showComplete() {
 
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
-    speak('Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari!');
+    speak('Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari! Hauskaa pääsiäistä Joona ja Jolanda!');
 }
 
 function restartHunt() {
