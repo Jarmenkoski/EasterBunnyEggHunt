@@ -32,7 +32,7 @@ const CLUE_MSGS = [
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
-    startIntroAnimation();
+    // Animation starts on egg click, not automatically
 });
 
 // ===== LOAD / SAVE =====
@@ -49,43 +49,62 @@ function saveEggs() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.eggs));
 }
 
-// ===== INTRO ANIMATION =====
-function startIntroAnimation() {
+// ===== SPEECH =====
+function speak(text, pitch = 1.5, rate = 1.0) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fi-FI';
+    utterance.pitch = pitch;
+    utterance.rate = rate;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+}
+
+// ===== EGG CLICK + INTRO ANIMATION =====
+let eggClicked = false;
+
+function crackEgg() {
+    if (eggClicked) return;
+    eggClicked = true;
+
     const eggEl    = document.getElementById('egg-emoji');
     const bunnyEl  = document.getElementById('bunny-popup');
     const speechEl = document.getElementById('intro-speech');
     const btnStart = document.getElementById('btn-start');
+    const hintEl   = document.getElementById('egg-hint');
 
-    // Phase 1: egg shakes after 600ms
-    setTimeout(() => {
-        eggEl.classList.add('shaking');
-    }, 600);
+    hintEl.style.display = 'none';
 
-    // Phase 2: egg cracks (change emoji, stop shaking)
+    // Phase 1: shake
+    eggEl.classList.remove('egg-idle');
+    eggEl.classList.add('shaking');
+
+    // Phase 2: crack
     setTimeout(() => {
         eggEl.classList.remove('shaking');
         eggEl.textContent = '🐣';
         eggEl.classList.add('cracking');
-    }, 2200);
+    }, 1200);
 
     // Phase 3: bunny pops up
     setTimeout(() => {
         eggEl.style.display = 'none';
         bunnyEl.classList.remove('hidden');
         bunnyEl.classList.add('popping');
-    }, 2700);
+    }, 1700);
 
-    // Phase 4: speech bubble appears
+    // Phase 4: speech bubble + pupu puhuu
     setTimeout(() => {
         speechEl.classList.remove('hidden');
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
-    }, 3400);
+        speak('Hei! Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?');
+    }, 2300);
 
-    // Phase 5: start button appears
+    // Phase 5: start button
     setTimeout(() => {
         btnStart.classList.remove('hidden');
         btnStart.style.animation = 'fadeSlideIn 0.4s ease';
-    }, 4000);
+    }, 2900);
 }
 
 // ===== SCREEN NAVIGATION =====
@@ -118,12 +137,14 @@ function showClue() {
     const egg = state.eggs[state.current];
     const total = state.eggs.length;
 
+    const clueMsg = pickRandom(CLUE_MSGS);
     document.getElementById('clue-image').src = egg.dataUrl;
     document.getElementById('egg-current').textContent = state.current + 1;
     document.getElementById('egg-total').textContent = total;
-    document.getElementById('clue-text').textContent = pickRandom(CLUE_MSGS);
+    document.getElementById('clue-text').textContent = clueMsg;
 
     showScreen('screen-clue');
+    speak(clueMsg);
 }
 
 function eggFound() {
@@ -142,6 +163,7 @@ function eggFound() {
 
     launchConfetti('confetti-container');
     showScreen('screen-found');
+    speak(msg);
 }
 
 function nextClue() {
@@ -160,10 +182,28 @@ function showComplete() {
 
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
+    speak('Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari!');
 }
 
 function restartHunt() {
     state.current = 0;
+    eggClicked = false;
+
+    // Reset egg scene
+    const eggEl   = document.getElementById('egg-emoji');
+    const bunnyEl = document.getElementById('bunny-popup');
+    const speechEl = document.getElementById('intro-speech');
+    const btnStart = document.getElementById('btn-start');
+    const hintEl  = document.getElementById('egg-hint');
+
+    eggEl.style.display = '';
+    eggEl.textContent = '🥚';
+    eggEl.className = 'egg-emoji egg-idle';
+    bunnyEl.className = 'bunny-popup hidden';
+    speechEl.classList.add('hidden');
+    btnStart.classList.add('hidden');
+    hintEl.style.display = '';
+
     showIntro();
 }
 

@@ -250,6 +250,14 @@ html, body {
     transition: all 0.3s;
 }
 
+.egg-emoji {
+    cursor: pointer;
+}
+
+.egg-idle {
+    animation: eggIdle 2s ease-in-out infinite;
+}
+
 .egg-emoji.shaking {
     animation: eggShake 0.4s ease infinite;
 }
@@ -537,6 +545,26 @@ html, body {
 }
 
 /* ===== ANIMATIONS ===== */
+.egg-hint {
+    font-size: 1.1rem;
+    color: #5a3e00;
+    font-weight: bold;
+    text-align: center;
+    animation: hintPulse 1.5s ease-in-out infinite;
+    margin-top: -8px;
+    z-index: 10;
+}
+
+@keyframes eggIdle {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%       { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 1; transform: scale(1.08); }
+}
+
 @keyframes eggShake {
     0%   { transform: rotate(-8deg) scale(1.02); }
     25%  { transform: rotate(8deg) scale(1.02); }
