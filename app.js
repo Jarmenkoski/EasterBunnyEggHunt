@@ -6,6 +6,7 @@ const state = {
 };
 
 const STORAGE_KEY = 'easterbunny_eggs';
+const NAMES_KEY   = 'easterbunny_names';
 
 const CONGRATS = [
     'Hienoa! Löysit munan! 🎉',
@@ -200,10 +201,45 @@ function initEgg() {
     if (eggDiv) eggDiv.innerHTML = createEggSVG();
 }
 
+// ===== NAMES =====
+function loadNames() {
+    try {
+        const saved = localStorage.getItem(NAMES_KEY);
+        return saved ? JSON.parse(saved) : { child1: '', child2: '' };
+    } catch (e) {
+        return { child1: '', child2: '' };
+    }
+}
+
+function saveNames(names) {
+    localStorage.setItem(NAMES_KEY, JSON.stringify(names));
+}
+
+function buildGreeting() {
+    const { child1, child2 } = loadNames();
+    const n1 = child1.trim();
+    const n2 = child2.trim();
+    if (n1 && n2) return `Hauskaa pääsiäistä ${n1} ja ${n2}!`;
+    if (n1)       return `Hauskaa pääsiäistä ${n1}!`;
+    if (n2)       return `Hauskaa pääsiäistä ${n2}!`;
+    return 'Hauskaa pääsiäistä!';
+}
+
+function buildGreetingHtml() {
+    const { child1, child2 } = loadNames();
+    const n1 = escapeHtml(child1.trim());
+    const n2 = escapeHtml(child2.trim());
+    if (n1 && n2) return `Hauskaa pääsiäistä <strong>${n1}</strong> ja <strong>${n2}</strong>! 🐣`;
+    if (n1)       return `Hauskaa pääsiäistä <strong>${n1}</strong>! 🐣`;
+    if (n2)       return `Hauskaa pääsiäistä <strong>${n2}</strong>! 🐣`;
+    return 'Hauskaa pääsiäistä! 🐣';
+}
+
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
+    setupNameInputs();
     initBunnies();
     initEgg();
     scheduleBlink();
@@ -348,6 +384,10 @@ function showIntro() { showScreen('screen-intro'); }
 
 function showSettings() {
     renderSettingsList();
+    // Populate name inputs with saved values
+    const names = loadNames();
+    document.getElementById('child-name-1').value = names.child1;
+    document.getElementById('child-name-2').value = names.child2;
     showScreen('screen-settings');
 }
 
@@ -400,9 +440,10 @@ function nextClue() {
 
 function showComplete() {
     document.getElementById('final-eggs').textContent = '🥚'.repeat(Math.min(state.eggs.length, 12));
+    document.getElementById('final-greeting').innerHTML = buildGreetingHtml();
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
-    speak('Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari! Hauskaa pääsiäistä Joona ja Jolanda!');
+    speak(`Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari! ${buildGreeting()}`);
 }
 
 function restartHunt() {
@@ -428,6 +469,17 @@ function restartHunt() {
 }
 
 // ===== SETTINGS =====
+function setupNameInputs() {
+    ['child-name-1', 'child-name-2'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            saveNames({
+                child1: document.getElementById('child-name-1').value,
+                child2: document.getElementById('child-name-2').value,
+            });
+        });
+    });
+}
+
 function setupFileUpload() {
     const input = document.getElementById('image-upload');
     input.addEventListener('change', async (e) => {

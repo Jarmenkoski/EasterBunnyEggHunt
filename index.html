@@ -125,7 +125,7 @@
                 <p><strong>Onneksi olkoon! 🎉</strong></p>
                 <p>Löysit kaikki munat!</p>
                 <p>Olet pääsiäismunajahdin <strong>mestari</strong>! 🌟</p>
-                <p>Hauskaa pääsiäistä <strong>Joona</strong> ja <strong>Jolanda</strong>! 🐣</p>
+                <p id="final-greeting"></p>
             </div>
             <div class="eggs-row" id="final-eggs"></div>
             <button class="btn-primary" onclick="restartHunt()">
@@ -141,6 +141,20 @@
             <h2>⚙️ Asetukset</h2>
         </div>
         <div class="settings-content">
+            <div class="settings-section">
+                <h3 class="settings-section-title">👶 Lasten nimet</h3>
+                <div class="name-input-row">
+                    <label for="child-name-1">Lapsi 1</label>
+                    <input type="text" id="child-name-1" placeholder="esim. Joona" maxlength="30" autocomplete="off">
+                </div>
+                <div class="name-input-row">
+                    <label for="child-name-2">Lapsi 2</label>
+                    <input type="text" id="child-name-2" placeholder="esim. Jolanda" maxlength="30" autocomplete="off">
+                </div>
+                <p class="settings-note">Tallennetaan automaattisesti tähän laitteeseen.</p>
+            </div>
+
+            <h3 class="settings-section-title">🥚 Munien kuvat</h3>
             <p class="settings-desc">Lisää kuvia piilotetuista munista järjestyksessä.</p>
             <div id="images-list" class="images-list"></div>
             <div class="add-image-section">
