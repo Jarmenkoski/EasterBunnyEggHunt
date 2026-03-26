@@ -327,34 +327,43 @@ function testVoice() {
 function loadNames() {
     try {
         const saved = localStorage.getItem(NAMES_KEY);
-        const d = saved ? JSON.parse(saved) : {};
-        return { child1: d.child1 || '', child2: d.child2 || '', child3: d.child3 || '' };
+        if (!saved) return ['', '', ''];
+        const d = JSON.parse(saved);
+        // Migrate old {child1, child2, child3} format to array
+        if (Array.isArray(d)) return d;
+        return [d.child1 || '', d.child2 || '', d.child3 || ''].filter((_, i) =>
+            i < 3 || d['child' + (i + 1)] !== undefined);
     } catch (e) {
-        return { child1: '', child2: '', child3: '' };
+        return ['', '', ''];
     }
 }
 
-function saveNames(names) {
-    localStorage.setItem(NAMES_KEY, JSON.stringify(names));
+function saveNames(arr) {
+    localStorage.setItem(NAMES_KEY, JSON.stringify(arr));
 }
 
-// Returns "Hei X, Y ja Z" greeting for speech / plain text
+function getNameList() {
+    return loadNames().map(n => n.trim()).filter(Boolean);
+}
+
+function joinNames(names) {
+    if (!names.length) return null;
+    if (names.length === 1) return names[0];
+    return names.slice(0, -1).join(', ') + ' ja ' + names[names.length - 1];
+}
+
 function buildHeiGreeting() {
-    const names = Object.values(loadNames()).map(n => n.trim()).filter(Boolean);
-    if (!names.length) return '';
-    if (names.length === 1) return `Hei ${names[0]}!`;
-    return `Hei ${names.slice(0, -1).join(', ')} ja ${names[names.length - 1]}!`;
+    const names = getNameList();
+    return names.length ? `Hei ${joinNames(names)}!` : '';
 }
 
 function buildGreeting() {
-    const names = Object.values(loadNames()).map(n => n.trim()).filter(Boolean);
-    if (!names.length) return 'Hauskaa pääsiäistä!';
-    if (names.length === 1) return `Hauskaa pääsiäistä ${names[0]}!`;
-    return `Hauskaa pääsiäistä ${names.slice(0, -1).join(', ')} ja ${names[names.length - 1]}!`;
+    const names = getNameList();
+    return names.length ? `Hauskaa pääsiäistä ${joinNames(names)}!` : 'Hauskaa pääsiäistä!';
 }
 
 function buildGreetingHtml() {
-    const names = Object.values(loadNames()).map(n => escapeHtml(n.trim())).filter(Boolean);
+    const names = getNameList().map(escapeHtml);
     if (!names.length) return 'Hauskaa pääsiäistä! 🐣';
     const joined = names.length === 1
         ? `<strong>${names[0]}</strong>`
@@ -362,11 +371,52 @@ function buildGreetingHtml() {
     return `Hauskaa pääsiäistä ${joined}! 🐣`;
 }
 
+function renderNamesList() {
+    const container = document.getElementById('names-list');
+    if (!container) return;
+    const names = loadNames();
+    container.innerHTML = '';
+    names.forEach((name, i) => {
+        const row = document.createElement('div');
+        row.className = 'name-input-row';
+        row.innerHTML = `
+            <label>Lapsi ${i + 1}</label>
+            <input type="text" maxlength="30" autocomplete="off" value="${escapeHtml(name)}"
+                   oninput="updateChildName(${i}, this.value)">
+            <button class="btn-icon delete" onclick="removeChild(${i})" title="Poista">✕</button>`;
+        container.appendChild(row);
+    });
+}
+
+function updateChildName(index, value) {
+    const names = loadNames();
+    names[index] = value;
+    saveNames(names);
+}
+
+function addChild() {
+    const names = loadNames();
+    names.push('');
+    saveNames(names);
+    renderNamesList();
+    // Focus the new input
+    const inputs = document.querySelectorAll('#names-list input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function removeChild(index) {
+    const names = loadNames();
+    if (names.length <= 1) return; // keep at least one
+    names.splice(index, 1);
+    saveNames(names);
+    renderNamesList();
+}
+
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
-    setupNameInputs();
+    renderNamesList();
     setupVoiceControls();
     initBunnies();
     initEgg();
@@ -555,11 +605,7 @@ function showIntro() { showScreen('screen-intro'); }
 
 function showSettings() {
     renderSettingsList();
-    const names = loadNames();
-    document.getElementById('child-name-1').value = names.child1;
-    document.getElementById('child-name-2').value = names.child2;
-    document.getElementById('child-name-3').value = names.child3;
-    // Re-populate voices (may have loaded since last open)
+    renderNamesList();
     populateVoiceList();
     showScreen('screen-settings');
 }
@@ -642,17 +688,6 @@ function restartHunt() {
 }
 
 // ===== SETTINGS =====
-function setupNameInputs() {
-    ['child-name-1', 'child-name-2', 'child-name-3'].forEach(id => {
-        document.getElementById(id).addEventListener('input', () => {
-            saveNames({
-                child1: document.getElementById('child-name-1').value,
-                child2: document.getElementById('child-name-2').value,
-                child3: document.getElementById('child-name-3').value,
-            });
-        });
-    });
-}
 
 function updateStorageIndicator() {
     const el = document.getElementById('storage-indicator');

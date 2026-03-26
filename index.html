@@ -162,18 +162,8 @@
 
             <div class="settings-section">
                 <h3 class="settings-section-title">👶 Lasten nimet</h3>
-                <div class="name-input-row">
-                    <label for="child-name-1">Lapsi 1</label>
-                    <input type="text" id="child-name-1" maxlength="30" autocomplete="off">
-                </div>
-                <div class="name-input-row">
-                    <label for="child-name-2">Lapsi 2</label>
-                    <input type="text" id="child-name-2" maxlength="30" autocomplete="off">
-                </div>
-                <div class="name-input-row">
-                    <label for="child-name-3">Lapsi 3</label>
-                    <input type="text" id="child-name-3" maxlength="30" autocomplete="off">
-                </div>
+                <div id="names-list"></div>
+                <button class="btn-add-child" onclick="addChild()">+ Lisää lapsi</button>
                 <p class="settings-note">Tallennetaan automaattisesti tähän laitteeseen.</p>
             </div>
 
