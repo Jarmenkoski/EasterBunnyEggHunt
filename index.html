@@ -59,6 +59,9 @@
     <!-- Intro Screen -->
     <div id="screen-intro" class="screen active">
         <div class="grass-bg"></div>
+        <div id="setup-hint" class="setup-hint" style="display:none">
+            👋 <strong>Vanhemmalle:</strong> Mene ensin <strong>Asetuksiin ⚙️</strong> — syötä lasten nimet, lisää kuvat ja tarkista pupun ääni.
+        </div>
         <div class="intro-content">
             <div class="egg-scene">
                 <div id="egg-emoji" class="egg-emoji egg-idle" onclick="crackEgg()"></div>
@@ -172,6 +175,10 @@
 
             <div class="settings-section">
                 <h3 class="settings-section-title">🔊 Pupun ääni</h3>
+                <div id="voice-warning" class="voice-warning" style="display:none">
+                    ⚠️ Laitteelta ei löydy suomenkielistä ääntä — käytetään varaääntä.<br>
+                    Asenna <strong>Google Text-to-Speech</strong> Play Kaupasta tai ota suomi käyttöön laitteen <em>Asetukset → Helppokäyttöisyys → Tekstistä puheeksi</em>.
+                </div>
                 <div class="name-input-row voice-row">
                     <label for="voice-select">Ääni</label>
                     <select id="voice-select"></select>

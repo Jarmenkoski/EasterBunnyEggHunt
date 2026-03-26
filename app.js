@@ -355,6 +355,11 @@ function populateVoiceList() {
     }
 
     select.value = saved.voiceName || '';
+
+    // Warn if no Finnish voice found on this device
+    const hasFinnish = voices.some(v => (v.lang || '').replace(/_/g, '-').startsWith('fi'));
+    const warning = document.getElementById('voice-warning');
+    if (warning) warning.style.display = hasFinnish ? 'none' : '';
 }
 
 function setupVoiceControls() {
@@ -494,6 +499,8 @@ window.addEventListener('DOMContentLoaded', () => {
     initBunnies();
     initEgg();
     scheduleBlink();
+    const hint = document.getElementById('setup-hint');
+    if (hint) hint.style.display = state.eggs.length === 0 ? '' : 'none';
 });
 
 // ===== LOAD / SAVE =====
@@ -542,7 +549,15 @@ function speak(text) {
     const vs = loadVoiceSettings();
     const freshVoices = speechSynthesis.getVoices();
     const voiceList = freshVoices.length > 0 ? freshVoices : cachedVoices;
-    const voice = vs.voiceName ? voiceList.find(v => v.name === vs.voiceName) : null;
+
+    // Priority: saved voice → Finnish voice → any voice (avoids silence on devices without Finnish TTS)
+    let voice = vs.voiceName ? voiceList.find(v => v.name === vs.voiceName) : null;
+    if (!voice) {
+        voice = voiceList.find(v => (v.lang || '').replace(/_/g, '-').startsWith('fi')) || null;
+    }
+    if (!voice && voiceList.length > 0) {
+        voice = voiceList[0];
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
     if (voice) {
@@ -677,7 +692,11 @@ function showScreen(id) {
     document.getElementById(id).classList.add('active');
 }
 
-function showIntro() { showScreen('screen-intro'); }
+function showIntro() {
+    showScreen('screen-intro');
+    const hint = document.getElementById('setup-hint');
+    if (hint) hint.style.display = state.eggs.length === 0 ? '' : 'none';
+}
 
 function showSettings() {
     renderSettingsList();
