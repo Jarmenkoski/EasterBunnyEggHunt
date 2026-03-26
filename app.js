@@ -26,9 +26,59 @@ const CLUE_MSGS = [
     'Juokse ja etsi – muna on täällä!',
 ];
 
+// ===== BUNNY SVG =====
+function createBunnySVG() {
+    return `<svg class="bunny-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" aria-label="Pääsiäispupu">
+  <ellipse cx="100" cy="234" rx="52" ry="7" fill="#8b7355" opacity="0.18"/>
+  <ellipse cx="66"  cy="68" rx="22" ry="57" fill="url(#bunnyEarGrad)" transform="rotate(-9,66,118)"/>
+  <ellipse cx="66"  cy="65" rx="12" ry="43" fill="#f598b5" opacity="0.78" transform="rotate(-9,66,118)"/>
+  <ellipse cx="134" cy="68" rx="22" ry="57" fill="url(#bunnyEarGrad)" transform="rotate(9,134,118)"/>
+  <ellipse cx="134" cy="65" rx="12" ry="43" fill="#f598b5" opacity="0.78" transform="rotate(9,134,118)"/>
+  <ellipse cx="100" cy="148" rx="74" ry="78" fill="url(#bunnyHeadGrad)" filter="url(#bunnyShadow)"/>
+  <ellipse cx="100" cy="222" rx="50" ry="22" fill="url(#bunnyEarGrad)"/>
+  <ellipse cx="88"  cy="215" rx="26" ry="15" fill="white" opacity="0.22"/>
+  <ellipse cx="55"  cy="163" rx="22" ry="13" fill="#ffb0c8" opacity="0.4"/>
+  <ellipse cx="145" cy="163" rx="22" ry="13" fill="#ffb0c8" opacity="0.4"/>
+  <ellipse cx="72"  cy="134" rx="15" ry="17" fill="#1a1030"/>
+  <ellipse cx="73"  cy="134" rx="11" ry="13" fill="#302055"/>
+  <ellipse cx="76"  cy="127" rx="6"  ry="7"  fill="white"/>
+  <circle  cx="80"  cy="137" r="2"           fill="white" opacity="0.5"/>
+  <ellipse cx="128" cy="134" rx="15" ry="17" fill="#1a1030"/>
+  <ellipse cx="129" cy="134" rx="11" ry="13" fill="#302055"/>
+  <ellipse cx="132" cy="127" rx="6"  ry="7"  fill="white"/>
+  <circle  cx="136" cy="137" r="2"           fill="white" opacity="0.5"/>
+  <path d="M100,154 C100,152 97,148 93,149 C89,150 89,156 100,163 C111,156 111,150 107,149 C103,148 100,152 100,154Z" fill="#e06880"/>
+  <ellipse cx="96" cy="152" rx="3" ry="2" fill="white" opacity="0.4"/>
+  <line x1="30"  y1="158" x2="88"  y2="160" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <line x1="32"  y1="166" x2="88"  y2="165" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <line x1="30"  y1="174" x2="88"  y2="170" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <line x1="112" y1="160" x2="170" y2="158" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <line x1="112" y1="165" x2="168" y2="166" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <line x1="112" y1="170" x2="170" y2="174" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
+  <g class="mouth-closed-part">
+    <path d="M85,170 Q100,180 115,170" stroke="#c06878" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <g class="mouth-open-part" style="display:none">
+    <path d="M85,170 Q100,188 115,170" stroke="#c06878" stroke-width="2.5" fill="#d07080" stroke-linecap="round"/>
+    <rect x="91"  y="170" width="9" height="9" fill="#f5f0ed" rx="2"/>
+    <rect x="100" y="170" width="9" height="9" fill="#f5f0ed" rx="2"/>
+    <line x1="100" y1="170" x2="100" y2="179" stroke="#d07080" stroke-width="1.5"/>
+  </g>
+</svg>`;
+}
+
+function initBunnies() {
+    document.querySelectorAll('[data-bunny-id]').forEach(el => {
+        el.innerHTML = createBunnySVG();
+    });
+}
+
+// ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
+    initBunnies();
+    // Animation starts on egg click, not automatically
 });
 
 function loadEggs() {
@@ -44,6 +94,25 @@ function saveEggs() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.eggs));
 }
 
+// ===== SPEECH + MOUTH ANIMATION =====
+let talkInterval = null;
+
+function startMouthAnimation() {
+    stopMouthAnimation();
+    let open = false;
+    talkInterval = setInterval(() => {
+        open = !open;
+        document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = open ? '' : 'none');
+        document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = open ? 'none' : '');
+    }, 170);
+}
+
+function stopMouthAnimation() {
+    if (talkInterval) { clearInterval(talkInterval); talkInterval = null; }
+    document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = '');
+}
+
 function speak(text, pitch = 1.5, rate = 1.0) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -51,7 +120,10 @@ function speak(text, pitch = 1.5, rate = 1.0) {
     utterance.pitch = pitch;
     utterance.rate = rate;
     utterance.volume = 1;
+    utterance.onend = () => stopMouthAnimation();
+    utterance.onerror = () => stopMouthAnimation();
     window.speechSynthesis.speak(utterance);
+    startMouthAnimation();
 }
 
 let eggClicked = false;

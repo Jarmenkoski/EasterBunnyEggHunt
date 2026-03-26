@@ -268,11 +268,18 @@ html, body {
 
 .bunny-popup {
     position: absolute;
-    font-size: 80px;
-    line-height: 1;
     bottom: 10px;
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
 }
+
+.bunny-svg {
+    display: block;
+    overflow: visible;
+}
+
+.bunny-popup .bunny-svg    { width: 120px; height: 130px; }
+.bunny-small .bunny-svg    { width: 65px;  height: 70px;  }
+.bunny-celebrate .bunny-svg { width: 130px; height: 140px; }
+.bunny-big .bunny-svg      { width: 130px; height: 140px; }
 
 .bunny-popup.hidden { display: none; }
 .bunny-popup.popping { animation: bunnyPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -299,7 +306,6 @@ html, body {
 }
 
 .bunny-small {
-    font-size: 52px;
     filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
     flex-shrink: 0;
 }
@@ -363,7 +369,6 @@ html, body {
 }
 
 .bunny-celebrate {
-    font-size: 90px;
     animation: bunnyDance 0.6s ease infinite alternate;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
 }
@@ -391,7 +396,6 @@ html, body {
 }
 
 .bunny-big {
-    font-size: 80px;
     animation: bunnyDance 0.5s ease infinite alternate;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
 }

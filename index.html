@@ -8,13 +8,32 @@
 </head>
 <body>
 
+<!-- Shared SVG gradient/filter defs for the 3D bunny -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <radialGradient id="bunnyHeadGrad" cx="38%" cy="32%" r="65%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="50%"  stop-color="#f5f0ed"/>
+      <stop offset="100%" stop-color="#d8cfc8"/>
+    </radialGradient>
+    <radialGradient id="bunnyEarGrad" cx="35%" cy="28%" r="70%">
+      <stop offset="0%"   stop-color="#f8f4f0"/>
+      <stop offset="100%" stop-color="#c8bdb4"/>
+    </radialGradient>
+    <filter id="bunnyShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="5" stdDeviation="5" flood-color="#8b7355" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+</svg>
+
+
     <!-- Intro Screen -->
     <div id="screen-intro" class="screen active">
         <div class="grass-bg"></div>
         <div class="intro-content">
             <div class="egg-scene">
                 <div id="egg-emoji" class="egg-emoji egg-idle" onclick="crackEgg()">🥚</div>
-                <div id="bunny-popup" class="bunny-popup hidden">🐰</div>
+                <div id="bunny-popup" class="bunny-popup hidden" data-bunny-id="popup"></div>
             </div>
             <div id="egg-hint" class="egg-hint">Napauta munaa! 👆</div>
             <div id="intro-speech" class="speech-bubble hidden">
@@ -33,7 +52,7 @@
         <div class="grass-bg"></div>
         <div class="clue-content">
             <div class="bunny-guide">
-                <div class="bunny-small">🐰</div>
+                <div class="bunny-small" data-bunny-id="guide"></div>
                 <div class="speech-bubble small">
                     <p id="clue-text">Etsi muna tästä paikasta!</p>
                 </div>
@@ -56,7 +75,7 @@
         <div class="grass-bg"></div>
         <div id="confetti-container"></div>
         <div class="found-content">
-            <div id="bunny-celebrate" class="bunny-celebrate">🐰</div>
+            <div id="bunny-celebrate" class="bunny-celebrate" data-bunny-id="celebrate"></div>
             <div class="speech-bubble large">
                 <p id="found-message">Hienoa! Löysit munan! 🎉</p>
             </div>
@@ -73,7 +92,7 @@
         <div id="confetti-container-final"></div>
         <div class="complete-content">
             <div class="trophy-row">🏆</div>
-            <div class="bunny-big">🐰</div>
+            <div class="bunny-big" data-bunny-id="complete"></div>
             <div class="speech-bubble large">
                 <p><strong>Onneksi olkoon! 🎉</strong></p>
                 <p>Löysit kaikki munat!</p>
