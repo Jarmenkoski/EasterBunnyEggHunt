@@ -394,9 +394,10 @@ function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     if (voice) {
         utterance.voice = voice;
-        utterance.lang  = voice.lang;
+        // Don't override lang when voice is explicitly chosen — some browsers
+        // would re-select a different voice to match the lang instead.
     } else {
-        utterance.lang  = 'fi-FI';
+        utterance.lang = 'fi-FI';
     }
     utterance.pitch  = vs.pitch ?? 1.5;
     utterance.rate   = vs.rate  ?? 1.0;
