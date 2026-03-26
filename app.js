@@ -619,6 +619,21 @@ function setupNameInputs() {
     });
 }
 
+function updateStorageIndicator() {
+    const el = document.getElementById('storage-indicator');
+    if (!el) return;
+    const QUOTA = 5 * 1024 * 1024; // ~5MB
+    const used = JSON.stringify(state.eggs).length; // bytes (base64 chars ≈ bytes)
+    const pct = Math.min(100, Math.round(used / QUOTA * 100));
+    const usedKB = Math.round(used / 1024);
+    const fillClass = pct >= 90 ? 'full' : pct >= 65 ? 'warn' : '';
+    el.innerHTML = `
+        <span>${state.eggs.length} kuvaa &nbsp;·&nbsp; ${usedKB} KB / ~5 000 KB käytössä</span>
+        <div class="storage-bar-track">
+            <div class="storage-bar-fill ${fillClass}" style="width:${pct}%"></div>
+        </div>`;
+}
+
 function showUploadStatus(msg, isError) {
     const el = document.getElementById('upload-status');
     if (!el) return;
@@ -698,6 +713,7 @@ function compressImage(file, maxPx, quality) {
 }
 
 function renderSettingsList() {
+    updateStorageIndicator();
     const list = document.getElementById('images-list');
     list.innerHTML = '';
 

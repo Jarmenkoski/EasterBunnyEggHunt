@@ -643,6 +643,27 @@ input[type="range"] {
     margin-bottom: 16px;
 }
 
+.storage-indicator {
+    margin: 6px 0 12px;
+    font-size: 0.82rem;
+    color: #666;
+}
+.storage-bar-track {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+.storage-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #4caf50;
+    transition: width 0.3s, background 0.3s;
+}
+.storage-bar-fill.warn { background: #ff9800; }
+.storage-bar-fill.full { background: #e53935; }
+
 .upload-status {
     margin-top: 10px;
     padding: 8px 12px;
