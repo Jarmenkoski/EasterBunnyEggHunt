@@ -259,50 +259,85 @@ function populateVoiceList() {
     defOpt.textContent = '🌐 Oletus (fi-FI)';
     select.appendChild(defOpt);
 
+    // Normalize lang: Android uses fi_FI, desktop uses fi-FI
+    function normLang(lang) { return (lang || '').replace(/_/g, '-'); }
+    function langBase(lang) { return normLang(lang).split('-')[0].toLowerCase(); }
+
     function genderLabel(v) {
         const n = v.name.toLowerCase();
         if (n.includes('male') && !n.includes('female')) return ' ♂';
         if (n.includes('female')) return ' ♀';
-        // Common Finnish/Nordic male names
         const maleNames = ['onni','oskari','harri','mikko','juhani','adam','george','daniel','thomas','oliver'];
         const femaleNames = ['satu','siiri','elina','anna','liisa','karin','alice','victoria','karen','samantha','moira'];
-        const first = v.name.split(' ')[0].toLowerCase();
+        const first = v.name.split(/[-_ ]/)[0].toLowerCase();
         if (maleNames.includes(first)) return ' ♂';
         if (femaleNames.includes(first)) return ' ♀';
         return '';
     }
 
-    function makeOption(v, showLang) {
+    // Show a clean label: prefer the voice name if it looks human, else show lang
+    function voiceLabel(v) {
+        const n = v.name;
+        const lang = normLang(v.lang);
+        // Android voices often have names like "fi-FI-language" — not useful to show
+        const looksLikeLangCode = /^[a-z]{2}[-_]/i.test(n);
+        const label = looksLikeLangCode ? lang : n;
+        return label + genderLabel(v);
+    }
+
+    function makeOption(v) {
         const o = document.createElement('option');
         o.value = v.name;
-        o.textContent = v.name + genderLabel(v) + (showLang ? ` (${v.lang})` : '');
+        o.textContent = voiceLabel(v);
         return o;
     }
 
+    const LANG_NAMES = {
+        fi:'🇫🇮 Suomi', en:'🇬🇧 Englanti', sv:'🇸🇪 Ruotsi',
+        no:'🇳🇴 Norja', da:'🇩🇰 Tanska', de:'🇩🇪 Saksa',
+        fr:'🇫🇷 Ranska', es:'🇪🇸 Espanja', it:'🇮🇹 Italia',
+        nl:'🇳🇱 Hollanti', pt:'🇵🇹 Portugali', ru:'🇷🇺 Venäjä',
+        ja:'🇯🇵 Japani', zh:'🇨🇳 Kiina', ko:'🇰🇷 Korea',
+        ar:'🌙 Arabia', pl:'🇵🇱 Puola', cs:'🇨🇿 Tšekki',
+        hu:'🇭🇺 Unkari', tr:'🇹🇷 Turkki',
+    };
+
     // Finnish voices first
-    const fi = voices.filter(v => v.lang.startsWith('fi'));
+    const fi = voices.filter(v => langBase(v.lang) === 'fi');
     if (fi.length > 0) {
         const grp = document.createElement('optgroup');
-        grp.label = '🇫🇮 Suomenkieliset';
-        fi.forEach(v => grp.appendChild(makeOption(v, false)));
+        grp.label = LANG_NAMES['fi'];
+        fi.forEach(v => grp.appendChild(makeOption(v)));
         select.appendChild(grp);
     }
 
-    // Group other voices by language
-    const others = voices.filter(v => !v.lang.startsWith('fi'));
+    // Known languages as own groups, everything else into "Muut"
+    const others = voices.filter(v => langBase(v.lang) !== 'fi');
     const byLang = {};
     others.forEach(v => {
-        const key = v.lang.split('-')[0];
+        const key = langBase(v.lang);
         if (!byLang[key]) byLang[key] = [];
         byLang[key].push(v);
     });
-    const langNames = { en:'🇬🇧 Englanti', sv:'🇸🇪 Ruotsi', no:'🇳🇴 Norja', da:'🇩🇰 Tanska', de:'🇩🇪 Saksa', fr:'🇫🇷 Ranska', es:'🇪🇸 Espanja', it:'🇮🇹 Italia' };
-    Object.keys(byLang).sort().forEach(key => {
+
+    const knownKeys = Object.keys(LANG_NAMES).filter(k => k !== 'fi' && byLang[k]);
+    const unknownKeys = Object.keys(byLang).filter(k => !LANG_NAMES[k]).sort();
+
+    knownKeys.forEach(key => {
         const grp = document.createElement('optgroup');
-        grp.label = langNames[key] || `🌍 ${key.toUpperCase()}`;
-        byLang[key].forEach(v => grp.appendChild(makeOption(v, true)));
+        grp.label = LANG_NAMES[key];
+        byLang[key].forEach(v => grp.appendChild(makeOption(v)));
         select.appendChild(grp);
     });
+
+    if (unknownKeys.length > 0) {
+        const grp = document.createElement('optgroup');
+        grp.label = '🌍 Muut kielet';
+        unknownKeys.forEach(key =>
+            byLang[key].forEach(v => grp.appendChild(makeOption(v)))
+        );
+        select.appendChild(grp);
+    }
 
     select.value = saved.voiceName || '';
 }
