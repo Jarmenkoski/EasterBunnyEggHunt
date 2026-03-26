@@ -327,9 +327,10 @@ function testVoice() {
 function loadNames() {
     try {
         const saved = localStorage.getItem(NAMES_KEY);
-        return saved ? JSON.parse(saved) : { child1: '', child2: '' };
+        const d = saved ? JSON.parse(saved) : {};
+        return { child1: d.child1 || '', child2: d.child2 || '', child3: d.child3 || '' };
     } catch (e) {
-        return { child1: '', child2: '' };
+        return { child1: '', child2: '', child3: '' };
     }
 }
 
@@ -337,24 +338,28 @@ function saveNames(names) {
     localStorage.setItem(NAMES_KEY, JSON.stringify(names));
 }
 
+// Returns "Hei X, Y ja Z" greeting for speech / plain text
+function buildHeiGreeting() {
+    const names = Object.values(loadNames()).map(n => n.trim()).filter(Boolean);
+    if (!names.length) return '';
+    if (names.length === 1) return `Hei ${names[0]}!`;
+    return `Hei ${names.slice(0, -1).join(', ')} ja ${names[names.length - 1]}!`;
+}
+
 function buildGreeting() {
-    const { child1, child2 } = loadNames();
-    const n1 = child1.trim();
-    const n2 = child2.trim();
-    if (n1 && n2) return `Hauskaa pääsiäistä ${n1} ja ${n2}!`;
-    if (n1)       return `Hauskaa pääsiäistä ${n1}!`;
-    if (n2)       return `Hauskaa pääsiäistä ${n2}!`;
-    return 'Hauskaa pääsiäistä!';
+    const names = Object.values(loadNames()).map(n => n.trim()).filter(Boolean);
+    if (!names.length) return 'Hauskaa pääsiäistä!';
+    if (names.length === 1) return `Hauskaa pääsiäistä ${names[0]}!`;
+    return `Hauskaa pääsiäistä ${names.slice(0, -1).join(', ')} ja ${names[names.length - 1]}!`;
 }
 
 function buildGreetingHtml() {
-    const { child1, child2 } = loadNames();
-    const n1 = escapeHtml(child1.trim());
-    const n2 = escapeHtml(child2.trim());
-    if (n1 && n2) return `Hauskaa pääsiäistä <strong>${n1}</strong> ja <strong>${n2}</strong>! 🐣`;
-    if (n1)       return `Hauskaa pääsiäistä <strong>${n1}</strong>! 🐣`;
-    if (n2)       return `Hauskaa pääsiäistä <strong>${n2}</strong>! 🐣`;
-    return 'Hauskaa pääsiäistä! 🐣';
+    const names = Object.values(loadNames()).map(n => escapeHtml(n.trim())).filter(Boolean);
+    if (!names.length) return 'Hauskaa pääsiäistä! 🐣';
+    const joined = names.length === 1
+        ? `<strong>${names[0]}</strong>`
+        : names.slice(0, -1).map(n => `<strong>${n}</strong>`).join(', ') + ` ja <strong>${names[names.length - 1]}</strong>`;
+    return `Hauskaa pääsiäistä ${joined}! 🐣`;
 }
 
 // ===== INIT =====
@@ -529,7 +534,8 @@ function crackEgg() {
     setTimeout(() => {
         speechEl.classList.remove('hidden');
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
-        speak('Hei! Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?');
+        const hei = buildHeiGreeting();
+        speak(`${hei ? hei + ' ' : ''}Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?`);
     }, 2300);
 
     // Phase 5: start button
@@ -552,6 +558,7 @@ function showSettings() {
     const names = loadNames();
     document.getElementById('child-name-1').value = names.child1;
     document.getElementById('child-name-2').value = names.child2;
+    document.getElementById('child-name-3').value = names.child3;
     // Re-populate voices (may have loaded since last open)
     populateVoiceList();
     showScreen('screen-settings');
@@ -636,11 +643,12 @@ function restartHunt() {
 
 // ===== SETTINGS =====
 function setupNameInputs() {
-    ['child-name-1', 'child-name-2'].forEach(id => {
+    ['child-name-1', 'child-name-2', 'child-name-3'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
             saveNames({
                 child1: document.getElementById('child-name-1').value,
                 child2: document.getElementById('child-name-2').value,
+                child3: document.getElementById('child-name-3').value,
             });
         });
     });
