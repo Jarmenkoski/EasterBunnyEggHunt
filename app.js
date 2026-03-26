@@ -704,14 +704,14 @@ function updateStorageIndicator() {
         </div>`;
 }
 
-function showUploadStatus(msg, isError) {
+function showUploadStatus(msg, isError, autoHide = true) {
     const el = document.getElementById('upload-status');
     if (!el) return;
     el.textContent = msg;
     el.className = 'upload-status ' + (isError ? 'err' : 'ok');
     el.style.display = 'block';
     clearTimeout(el._hideTimer);
-    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 8000);
+    if (autoHide) el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 8000);
 }
 
 function setupFileUpload() {
@@ -722,9 +722,12 @@ function setupFileUpload() {
         let added = 0;
         const failedFiles = [];
         let quotaFull = false;
+        showUploadStatus(`Käsitellään ${files.length} kuvaa…`, false, false);
 
-        for (const file of files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             if (quotaFull) break;
+            if (files.length > 1) showUploadStatus(`Käsitellään ${i + 1}/${files.length}…`, false, false);
             let dataUrl;
             try {
                 dataUrl = await compressImage(file, 800, 0.65);
