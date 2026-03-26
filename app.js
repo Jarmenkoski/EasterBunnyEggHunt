@@ -8,6 +8,7 @@ const state = {
 const STORAGE_KEY = 'easterbunny_eggs';
 const NAMES_KEY   = 'easterbunny_names';
 const VOICE_KEY   = 'easterbunny_voice';
+const RV_KEY      = 'easterbunny_rvkey';
 
 let cachedVoices = [];
 
@@ -499,6 +500,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initBunnies();
     initEgg();
     scheduleBlink();
+    initResponsiveVoice(loadRVKey());
     const hint = document.getElementById('setup-hint');
     if (hint) hint.style.display = state.eggs.length === 0 ? '' : 'none';
 });
@@ -515,6 +517,53 @@ function loadEggs() {
 
 function saveEggs() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.eggs));
+}
+
+// ===== RESPONSIVEVOICE =====
+function loadRVKey() { return localStorage.getItem(RV_KEY) || ''; }
+function saveRVKey(key) {
+    if (key) localStorage.setItem(RV_KEY, key.trim());
+    else localStorage.removeItem(RV_KEY);
+}
+
+function initResponsiveVoice(key) {
+    if (!key || window.responsiveVoice) return;
+    const s = document.createElement('script');
+    s.src = `https://code.responsivevoice.org/responsivevoice.js?key=${encodeURIComponent(key)}`;
+    s.async = true;
+    s.onload = () => updateRVStatus();
+    s.onerror = () => {
+        const el = document.getElementById('rv-key-status');
+        if (el) { el.textContent = '❌ Avain virheellinen tai verkkovirhe'; el.style.color = '#c00'; }
+    };
+    document.head.appendChild(s);
+}
+
+function updateRVStatus() {
+    const el = document.getElementById('rv-key-status');
+    if (!el) return;
+    if (window.responsiveVoice) {
+        el.textContent = '✅ ResponsiveVoice ladattu — suomenkielinen puhe käytössä';
+        el.style.color = '#2d7a2d';
+    }
+}
+
+function setupRVKeyInput() {
+    const input = document.getElementById('rv-key-input');
+    const btn   = document.getElementById('rv-key-save');
+    if (!input || !btn) return;
+    input.value = loadRVKey();
+    updateRVStatus();
+    btn.addEventListener('click', () => {
+        const key = input.value.trim();
+        saveRVKey(key);
+        if (key && !window.responsiveVoice) {
+            initResponsiveVoice(key);
+        } else if (!key) {
+            const el = document.getElementById('rv-key-status');
+            if (el) { el.textContent = ''; }
+        }
+    });
 }
 
 // ===== SPEECH + MOUTH ANIMATION =====
@@ -550,14 +599,44 @@ function speak(text) {
     const freshVoices = speechSynthesis.getVoices();
     const voiceList = freshVoices.length > 0 ? freshVoices : cachedVoices;
 
-    // Priority: saved voice → Finnish voice → any voice (avoids silence on devices without Finnish TTS)
+    // Priority: saved voice → Finnish voice → ResponsiveVoice cloud → any voice
     let voice = vs.voiceName ? voiceList.find(v => v.name === vs.voiceName) : null;
     if (!voice) {
         voice = voiceList.find(v => (v.lang || '').replace(/_/g, '-').startsWith('fi')) || null;
     }
-    if (!voice && voiceList.length > 0) {
-        voice = voiceList[0];
+
+    // No Finnish voice and no user selection → use ResponsiveVoice Finnish Female (cloud TTS)
+    if (!voice && !vs.voiceName && window.responsiveVoice) {
+        const rate = vs.rate ?? 1.0;
+        const wordCount = text.split(/\s+/).length;
+        const estimatedMs = Math.max(3000, (wordCount / 2.5) * (1000 / rate)) + 2000;
+        let open = false;
+        const rvInterval = setInterval(() => { open = !open; setMouthOpen(open); }, 160);
+        let rvDone = false;
+        function stopRV() {
+            if (rvDone) return; rvDone = true;
+            clearTimeout(rvGuard); clearInterval(rvInterval);
+            stopMouthAnimation();
+            document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
+        }
+        const rvGuard = setTimeout(stopRV, estimatedMs);
+        responsiveVoice.speak(text, 'Finnish Female', {
+            rate, pitch: 1.0, volume: 1,
+            onend: stopRV,
+            onerror: () => { stopRV(); if (voiceList.length > 0) _speakWSA(text, vs, voiceList[0]); },
+        });
+        return;
     }
+
+    // Last resort: any available voice (better than silence)
+    if (!voice && voiceList.length > 0) voice = voiceList[0];
+
+    _speakWSA(text, vs, voice);
+}
+
+function _speakWSA(text, vs, voice) {
+    document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
+    const rate = vs.rate ?? 1.0;
 
     const utterance = new SpeechSynthesisUtterance(text);
     if (voice) {
@@ -566,7 +645,6 @@ function speak(text) {
     } else {
         utterance.lang = 'fi-FI';
     }
-    const rate = vs.rate ?? 1.0;
     utterance.pitch  = vs.pitch ?? 1.5;
     utterance.rate   = rate;
     utterance.volume = 1;
@@ -575,9 +653,11 @@ function speak(text) {
     const wordCount = text.split(/\s+/).length;
     const estimatedMs = Math.max(2000, (wordCount / 2.5) * (1000 / rate)) + 2000;
     let animGuard = setTimeout(() => stopSpeaking(), estimatedMs);
+    let fallbackInterval = null;
 
     function stopSpeaking() {
         clearTimeout(animGuard);
+        clearInterval(fallbackInterval);
         stopMouthAnimation();
         document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
     }
@@ -591,7 +671,6 @@ function speak(text) {
     };
 
     // Fallback interval if onboundary never fires (some voices/browsers don't support it)
-    let fallbackInterval = null;
     utterance.onstart = () => {
         setTimeout(() => {
             if (!boundaryFired) {
@@ -702,6 +781,7 @@ function showSettings() {
     renderSettingsList();
     renderNamesList();
     populateVoiceList();
+    setupRVKeyInput();
     showScreen('screen-settings');
 }
 

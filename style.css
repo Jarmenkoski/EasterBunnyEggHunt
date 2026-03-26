@@ -727,6 +727,32 @@ input[type="range"] {
     margin-bottom: 10px;
     line-height: 1.5;
 }
+.rv-key-row {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+.rv-key-row input {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+.rv-key-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: #7a5c2a;
+    margin-top: 2px;
+}
+.rv-key-status {
+    display: block;
+    font-size: 0.80rem;
+    margin-top: 4px;
+    font-weight: 600;
+}
 
 .setup-hint {
     background: #e8f4fd;

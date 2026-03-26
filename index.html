@@ -176,8 +176,14 @@
             <div class="settings-section">
                 <h3 class="settings-section-title">🔊 Pupun ääni</h3>
                 <div id="voice-warning" class="voice-warning" style="display:none">
-                    ⚠️ Laitteelta ei löydy suomenkielistä ääntä — käytetään varaääntä.<br>
-                    Asenna <strong>Google Text-to-Speech</strong> Play Kaupasta tai ota suomi käyttöön laitteen <em>Asetukset → Helppokäyttöisyys → Tekstistä puheeksi</em>.
+                    ⚠️ Laitteelta ei löydy suomenkielistä ääntä.<br>
+                    <strong>ResponsiveVoice-avaimella</strong> pupu puhuu suomea kaikilla laitteilla (ilmainen, ei luottokorttia):
+                    <div class="rv-key-row">
+                        <input type="text" id="rv-key-input" placeholder="Liitä avain tähän…" autocomplete="off" spellcheck="false">
+                        <button class="btn-icon" id="rv-key-save" title="Tallenna avain">✅</button>
+                    </div>
+                    <span class="rv-key-hint">Rekisteröidy: <strong>responsivevoice.org/register</strong> → kopioi avain ja liitä yllä</span>
+                    <span id="rv-key-status" class="rv-key-status"></span>
                 </div>
                 <div class="name-input-row voice-row">
                     <label for="voice-select">Ääni</label>
