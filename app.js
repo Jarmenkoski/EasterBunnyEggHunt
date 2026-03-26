@@ -649,7 +649,7 @@ function setupFileUpload() {
     input.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         let added = 0;
-        let failed = 0;
+        const failedFiles = [];
         let quotaFull = false;
 
         for (const file of files) {
@@ -658,8 +658,12 @@ function setupFileUpload() {
             try {
                 dataUrl = await compressImage(file, 800, 0.65);
             } catch (err) {
-                console.error('Pakkaus epäonnistui:', file.name, err);
-                failed++;
+                const reason = err.message === 'decode'
+                    ? 'ei-tuettu muoto (HEIC?)'
+                    : err.message === 'timeout'
+                    ? 'liian hidas'
+                    : 'lukuvirhe';
+                failedFiles.push(`${file.name} (${reason})`);
                 continue;
             }
             // Try saving one image at a time to detect quota early
@@ -680,8 +684,9 @@ function setupFileUpload() {
 
         if (quotaFull) {
             showUploadStatus(`Tallennustila täynnä! Lisätty ${added}/${files.length} kuvaa. Poista vanhoja kuvia ensin.`, true);
-        } else if (failed > 0) {
-            showUploadStatus(`${added} kuvaa lisätty, ${failed} epäonnistui.`, true);
+        } else if (failedFiles.length > 0) {
+            const names = failedFiles.join(', ');
+            showUploadStatus(`${added} lisätty. Epäonnistui: ${names}`, true);
         } else if (added > 0) {
             showUploadStatus(`✓ ${added} kuva${added > 1 ? 'a' : ''} lisätty!`, false);
         }
@@ -690,21 +695,27 @@ function setupFileUpload() {
 
 function compressImage(file, maxPx, quality) {
     return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('timeout')), 15000);
+        const done = (val) => { clearTimeout(timeout); resolve(val); };
+        const fail = (err) => { clearTimeout(timeout); reject(err); };
+
         const reader = new FileReader();
-        reader.onerror = reject;
+        reader.onerror = () => fail(new Error('read'));
         reader.onload = (ev) => {
             const img = new Image();
-            img.onerror = reject;
+            img.onerror = () => fail(new Error('decode'));
             img.onload = () => {
-                let w = img.width, h = img.height;
-                if (w > maxPx || h > maxPx) {
-                    if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
-                    else        { w = Math.round(w * maxPx / h); h = maxPx; }
-                }
-                const canvas = document.createElement('canvas');
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/jpeg', quality));
+                try {
+                    let w = img.width, h = img.height;
+                    if (w > maxPx || h > maxPx) {
+                        if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+                        else        { w = Math.round(w * maxPx / h); h = maxPx; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    done(canvas.toDataURL('image/jpeg', quality));
+                } catch (e) { fail(e); }
             };
             img.src = ev.target.result;
         };
