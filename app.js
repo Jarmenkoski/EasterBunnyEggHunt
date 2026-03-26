@@ -260,6 +260,7 @@ function populateVoiceList() {
     select.appendChild(defOpt);
 
     // Normalize lang: Android uses fi_FI, desktop uses fi-FI
+    // Normalize lang codes: Android uses fi_FI, desktop uses fi-FI
     function normLang(lang) { return (lang || '').replace(/_/g, '-'); }
     function langBase(lang) { return normLang(lang).split('-')[0].toLowerCase(); }
 
@@ -267,83 +268,89 @@ function populateVoiceList() {
         const n = v.name.toLowerCase();
         if (n.includes('male') && !n.includes('female')) return ' ♂';
         if (n.includes('female')) return ' ♀';
-        // Google Cloud TTS: en-US-Neural2-F / en-US-Wavenet-M
         if (/-[fm]$/i.test(v.name)) return /f$/i.test(v.name) ? ' ♀' : ' ♂';
-        const maleNames = ['onni','oskari','harri','mikko','juhani','adam','george','daniel','thomas','oliver'];
-        const femaleNames = ['satu','siiri','elina','anna','liisa','karin','alice','victoria','karen','samantha','moira'];
-        const first = v.name.split(/[-_ ]/)[0].toLowerCase();
-        if (maleNames.includes(first)) return ' ♂';
-        if (femaleNames.includes(first)) return ' ♀';
+        const males   = ['onni','oskari','harri','mikko','juhani','adam','george','daniel','thomas','oliver'];
+        const females = ['satu','siiri','elina','anna','liisa','karin','alice','victoria','karen','samantha','moira'];
+        const first   = v.name.split(/[-_ ]/)[0].toLowerCase();
+        if (males.includes(first))   return ' ♂';
+        if (females.includes(first)) return ' ♀';
         return '';
     }
 
-    // Show a clean label: strip lang prefix from Android/Cloud TTS voice names
-    function voiceLabel(v) {
+    // Android voices: name = "suomi Suomi" / "assami Intia" (lowercase lang + Title country)
+    // Desktop voices: name = "Google UK English Male" / "Satu" / "en-US-Neural2-F"
+    function cleanName(v, showCountryIfNeeded, sameFirstWordVoices) {
         const n = v.name;
-        const lang = normLang(v.lang);
-        // Voice names like "fi-FI-x-fif-local" or "en-US-Neural2-F":
-        // strip the leading lang prefix (e.g. "en-US-") to get "Neural2-F"
-        const stripped = n.replace(/^[a-z]{2}[-_][a-z]{2}[-_]/i, '').trim();
-        // If stripping left something meaningful (not just "x-...-local/network"), use it
-        const suffix = stripped && !/^x[-_].*(local|network|language)$/i.test(stripped)
-            ? stripped : '';
-        const label = /^[a-z]{2}[-_]/i.test(n)
-            ? (suffix ? `${lang} ${suffix}` : lang)
-            : n;
-        return label + genderLabel(v);
-    }
-
-    function makeOption(v) {
-        const o = document.createElement('option');
-        o.value = v.name;
-        o.textContent = voiceLabel(v);
-        return o;
+        // Desktop: starts with uppercase or is a lang-code style (fi-FI-x-...)
+        if (/^[A-Z]/.test(n)) {
+            // Strip lang prefix from Cloud TTS voices like "en-US-Neural2-F"
+            const stripped = n.replace(/^[a-z]{2}-[a-z]{2}-/i, '').trim();
+            const suffix = /^x-.*(local|network|language)/i.test(stripped) ? '' : stripped;
+            return (suffix && suffix !== n ? `${normLang(v.lang)} ${suffix}` : n) + genderLabel(v);
+        }
+        if (/^[a-z]{2}[-_]/i.test(n)) {
+            // lang-code style: "fi-FI-x-fif-local" → show just lang
+            return normLang(v.lang) + genderLabel(v);
+        }
+        // Android style: "suomi Suomi" → capitalize first word, add country if ambiguous
+        const parts = n.split(' ');
+        const langPart = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+        const countryPart = parts.slice(1).join(' ');
+        const needsCountry = showCountryIfNeeded &&
+            sameFirstWordVoices.filter(x => x !== v &&
+                x.name.split(' ')[0].toLowerCase() === parts[0].toLowerCase()).length > 0;
+        return (needsCountry && countryPart ? `${langPart} (${countryPart})` : langPart) + genderLabel(v);
     }
 
     const LANG_NAMES = {
-        fi:'🇫🇮 Suomi', en:'🇬🇧 Englanti', sv:'🇸🇪 Ruotsi',
-        no:'🇳🇴 Norja', da:'🇩🇰 Tanska', de:'🇩🇪 Saksa',
-        fr:'🇫🇷 Ranska', es:'🇪🇸 Espanja', it:'🇮🇹 Italia',
-        nl:'🇳🇱 Hollanti', pt:'🇵🇹 Portugali', ru:'🇷🇺 Venäjä',
-        ja:'🇯🇵 Japani', zh:'🇨🇳 Kiina', ko:'🇰🇷 Korea',
-        ar:'🌙 Arabia', pl:'🇵🇱 Puola', cs:'🇨🇿 Tšekki',
-        hu:'🇭🇺 Unkari', tr:'🇹🇷 Turkki',
+        fi:'🇫🇮 Suomi',     en:'🇬🇧 Englanti', sv:'🇸🇪 Ruotsi',
+        no:'🇳🇴 Norja',     da:'🇩🇰 Tanska',   de:'🇩🇪 Saksa',
+        fr:'🇫🇷 Ranska',    es:'🇪🇸 Espanja',   it:'🇮🇹 Italia',
+        nl:'🇳🇱 Hollanti',  pt:'🇵🇹 Portugali', ru:'🇷🇺 Venäjä',
+        ja:'🇯🇵 Japani',    zh:'🇨🇳 Kiina',     ko:'🇰🇷 Korea',
+        ar:'🌙 Arabia',     pl:'🇵🇱 Puola',     cs:'🇨🇿 Tšekki',
+        hu:'🇭🇺 Unkari',    tr:'🇹🇷 Turkki',
     };
 
-    // Finnish voices first
-    const fi = voices.filter(v => langBase(v.lang) === 'fi');
-    if (fi.length > 0) {
-        const grp = document.createElement('optgroup');
-        grp.label = LANG_NAMES['fi'];
-        fi.forEach(v => grp.appendChild(makeOption(v)));
-        select.appendChild(grp);
-    }
-
-    // Known languages as own groups, everything else into "Muut"
-    const others = voices.filter(v => langBase(v.lang) !== 'fi');
+    // Group voices by language base code
     const byLang = {};
-    others.forEach(v => {
+    voices.forEach(v => {
         const key = langBase(v.lang);
         if (!byLang[key]) byLang[key] = [];
         byLang[key].push(v);
     });
 
-    const knownKeys = Object.keys(LANG_NAMES).filter(k => k !== 'fi' && byLang[k]);
-    const unknownKeys = Object.keys(byLang).filter(k => !LANG_NAMES[k]).sort();
-
-    knownKeys.forEach(key => {
+    function makeGroup(key, label) {
         const grp = document.createElement('optgroup');
-        grp.label = LANG_NAMES[key];
-        byLang[key].forEach(v => grp.appendChild(makeOption(v)));
-        select.appendChild(grp);
+        grp.label = label;
+        byLang[key].forEach(v => {
+            const o = document.createElement('option');
+            o.value = v.name;
+            o.textContent = cleanName(v, true, byLang[key]);
+            grp.appendChild(o);
+        });
+        return grp;
+    }
+
+    // Finnish voices first
+    if (byLang['fi']) select.appendChild(makeGroup('fi', LANG_NAMES['fi']));
+
+    // Known useful languages
+    Object.entries(LANG_NAMES).forEach(([key, label]) => {
+        if (key !== 'fi' && byLang[key]) select.appendChild(makeGroup(key, label));
     });
 
-    if (unknownKeys.length > 0) {
+    // All other languages in one "Muut" group
+    const unknownVoices = voices.filter(v => !LANG_NAMES[langBase(v.lang)]);
+    if (unknownVoices.length > 0) {
         const grp = document.createElement('optgroup');
-        grp.label = '🌍 Muut kielet';
-        unknownKeys.forEach(key =>
-            byLang[key].forEach(v => grp.appendChild(makeOption(v)))
-        );
+        grp.label = `🌍 Muut (${unknownVoices.length})`;
+        unknownVoices.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v.name;
+            o.textContent = cleanName(v, true, unknownVoices);
+            grp.appendChild(o);
+        });
         select.appendChild(grp);
     }
 
