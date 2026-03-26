@@ -12,9 +12,9 @@ const VOICE_KEY   = 'easterbunny_voice';
 let cachedVoices = [];
 
 const CONGRATS = [
-    'Hienoa! Löysit munan! 🎉',
-    'Mahtavaa! Olet todella taitava! ⭐',
-    'Vau! Kyllä sinä osaat! 🌟',
+    'Hienoa! Löysit munan!',
+    'Mahtavaa! Olet todella taitava!',
+    'Vau! Kyllä sinä osaat!',
     'Upea! Pääsiäispupu on ylpeä sinusta!',
     'Huikeaa! Löysit munan niin nopeasti!',
     'Loistavaa! Olet pääsiäisjahtimestari!',
@@ -402,6 +402,7 @@ function stopMouthAnimation() {
 }
 
 function speak(text) {
+    text = stripEmoji(text);
     window.speechSynthesis.cancel();
     stopMouthAnimation();
 
@@ -409,14 +410,15 @@ function speak(text) {
     document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
 
     const vs = loadVoiceSettings();
-    const voices = cachedVoices.length > 0 ? cachedVoices : speechSynthesis.getVoices();
-    const voice = vs.voiceName ? voices.find(v => v.name === vs.voiceName) : null;
+    // Always fetch fresh voices; fall back to cache if list is momentarily empty
+    const freshVoices = speechSynthesis.getVoices();
+    const voiceList = freshVoices.length > 0 ? freshVoices : cachedVoices;
+    const voice = vs.voiceName ? voiceList.find(v => v.name === vs.voiceName) : null;
 
     const utterance = new SpeechSynthesisUtterance(text);
     if (voice) {
         utterance.voice = voice;
-        // Don't override lang when voice is explicitly chosen — some browsers
-        // would re-select a different voice to match the lang instead.
+        utterance.lang  = voice.lang;
     } else {
         utterance.lang = 'fi-FI';
     }
@@ -424,21 +426,24 @@ function speak(text) {
     utterance.rate   = vs.rate  ?? 1.0;
     utterance.volume = 1;
 
-    // Mouth moves ONLY when audio actually starts
-    utterance.onstart = () => startMouthAnimation();
+    // Safety fallback: stop animation if onend never fires (Chrome bug at high rates)
+    const wordCount = text.split(/\s+/).length;
+    const estimatedMs = Math.max(2000, (wordCount / 2.5) * (1000 / utterance.rate)) + 1500;
+    let animGuard = setTimeout(() => stopSpeaking(), estimatedMs);
 
-    utterance.onend = () => {
-        stopMouthAnimation();
-        setTimeout(() => {
-            document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
-        }, 500);
-    };
-    utterance.onerror = () => {
+    function stopSpeaking() {
+        clearTimeout(animGuard);
         stopMouthAnimation();
         document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
-    };
+    }
 
-    window.speechSynthesis.speak(utterance);
+    // Mouth moves ONLY when audio actually starts
+    utterance.onstart = () => startMouthAnimation();
+    utterance.onend   = () => stopSpeaking();
+    utterance.onerror = () => stopSpeaking();
+
+    // Chrome needs a brief pause after cancel() before a new speak() will start
+    setTimeout(() => window.speechSynthesis.speak(utterance), 50);
 }
 
 // ===== BLINK =====
@@ -740,6 +745,10 @@ function fileToDataUrl(file) {
 }
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function stripEmoji(str) {
+    return str.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{20D0}-\u{20FF}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+}
 
 function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
