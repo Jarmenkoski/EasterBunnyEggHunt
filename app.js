@@ -641,7 +641,7 @@ function showUploadStatus(msg, isError) {
     el.className = 'upload-status ' + (isError ? 'err' : 'ok');
     el.style.display = 'block';
     clearTimeout(el._hideTimer);
-    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 8000);
 }
 
 function setupFileUpload() {
