@@ -11,24 +11,47 @@ const VOICE_KEY   = 'easterbunny_voice';
 
 let cachedVoices = [];
 
-const CONGRATS = [
-    'Hienoa! Löysit munan!',
-    'Mahtavaa! Olet todella taitava!',
-    'Vau! Kyllä sinä osaat!',
-    'Upea! Pääsiäispupu on ylpeä sinusta!',
-    'Huikeaa! Löysit munan niin nopeasti!',
-    'Loistavaa! Olet pääsiäisjahtimestari!',
-    'Ihana! Jatka samaan malliin! 🌈',
-    'Wau! Olet paras munanetsijä koko maailmassa!',
-];
+const CONGRATS = {
+    one: [
+        'Hienoa! Löysit munan!',
+        'Mahtavaa! Olet todella taitava!',
+        'Vau! Kyllä sinä osaat!',
+        'Upea! Pääsiäispupu on ylpeä sinusta!',
+        'Huikeaa! Löysit munan niin nopeasti!',
+        'Loistavaa! Olet pääsiäisjahtimestari!',
+        'Ihana! Jatka samaan malliin!',
+        'Wau! Olet paras munanetsijä koko maailmassa!',
+    ],
+    many: [
+        'Hienoa! Löysitte munan!',
+        'Mahtavaa! Olette todella taitavia!',
+        'Vau! Kyllä te osaatte!',
+        'Upea! Pääsiäispupu on ylpeä teistä!',
+        'Huikeaa! Löysitte munan niin nopeasti!',
+        'Loistavaa! Olette pääsiäisjahtimestarit!',
+        'Ihana! Jatkakaa samaan malliin!',
+        'Wau! Olette parhaat munanetsijät koko maailmassa!',
+    ],
+};
 
-const CLUE_MSGS = [
-    'Etsi muna tästä paikasta!',
-    'Katso tarkkaan – muna odottaa sinua!',
-    'Pääsiäispupu piilotti munan tänne!',
-    'Oletko tarkkasilmäinen? Etsi muna!',
-    'Juokse ja etsi – muna on täällä!',
-];
+const CLUE_MSGS = {
+    one: [
+        'Etsi muna tästä paikasta!',
+        'Katso tarkkaan – muna odottaa sinua!',
+        'Pääsiäispupu piilotti munan tänne!',
+        'Oletko tarkkasilmäinen? Etsi muna!',
+        'Juokse ja etsi – muna on täällä!',
+    ],
+    many: [
+        'Etsikää muna tästä paikasta!',
+        'Katsokaa tarkkaan – muna odottaa teitä!',
+        'Pääsiäispupu piilotti munan tänne!',
+        'Oletteko tarkkasilmäisiä? Etsikää muna!',
+        'Juoskaa ja etsikää – muna on täällä!',
+    ],
+};
+
+function plural() { return getNameList().length > 1; }
 
 // ===== EGG SVG (intro — ears through shell) =====
 function createEggSVG() {
@@ -586,8 +609,9 @@ function crackEgg() {
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
         const hei = buildHeiGreeting();
         const heiHtml = hei ? `<p>${escapeHtml(hei)}</p>` : '';
-        speechEl.innerHTML = `${heiHtml}<p>Minä olen <strong>Pääsiäispupu</strong>! 🐰</p><p>Oletko valmis pääsiäismunajahtiiin?</p>`;
-        speak(`${hei ? hei + ' ' : ''}Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?`);
+        const valmis = plural() ? 'Oletteko valmiita pääsiäismunajahtiiin?' : 'Oletko valmis pääsiäismunajahtiiin?';
+        speechEl.innerHTML = `${heiHtml}<p>Minä olen <strong>Pääsiäispupu</strong>! 🐰</p><p>${valmis}</p>`;
+        speak(`${hei ? hei + ' ' : ''}Minä olen Pääsiäispupu! ${valmis}`);
     }, 2300);
 
     // Phase 5: start button
@@ -625,7 +649,7 @@ function startHunt() {
 
 function showClue() {
     const egg = state.eggs[state.current];
-    const clueMsg = pickRandom(CLUE_MSGS);
+    const clueMsg = pickRandom(plural() ? CLUE_MSGS.many : CLUE_MSGS.one);
 
     document.getElementById('clue-image').src = egg.dataUrl;
     document.getElementById('egg-current').textContent = state.current + 1;
@@ -638,7 +662,7 @@ function showClue() {
 
 function eggFound() {
     const isLast = state.current >= state.eggs.length - 1;
-    const msg = pickRandom(CONGRATS);
+    const msg = pickRandom(plural() ? CONGRATS.many : CONGRATS.one);
 
     document.getElementById('found-message').textContent = msg;
     document.getElementById('btn-next').textContent = isLast
@@ -664,7 +688,10 @@ function showComplete() {
     document.getElementById('final-greeting').innerHTML = buildGreetingHtml();
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
-    speak(`Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari! ${buildGreeting()}`);
+    const finalMsg = plural()
+        ? `Onneksi olkoon! Löysitte kaikki munat! Olette pääsiäismunajahdin mestarit!`
+        : `Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari!`;
+    speak(`${finalMsg} ${buildGreeting()}`);
 }
 
 function restartHunt() {

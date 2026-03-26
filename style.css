@@ -494,8 +494,9 @@ html, body {
 .name-input-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 10px;
+    min-width: 0;
 }
 
 .name-input-row label {
@@ -508,6 +509,7 @@ html, body {
 
 .name-input-row input {
     flex: 1;
+    min-width: 0;
     border: 2px solid #d0b8e8;
     border-radius: 10px;
     padding: 8px 12px;
@@ -544,6 +546,8 @@ html, body {
 
 #voice-select {
     flex: 1;
+    min-width: 0;
+    max-width: 100%;
     border: 2px solid #d0b8e8;
     border-radius: 10px;
     padding: 7px 10px;
@@ -551,6 +555,8 @@ html, body {
     color: #333;
     background: #fff;
     outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #voice-select:focus { border-color: #9b59b6; }
