@@ -518,6 +518,49 @@ html, body {
     margin-top: 4px;
 }
 
+#voice-select {
+    flex: 1;
+    border: 2px solid #d0b8e8;
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-size: 0.9rem;
+    color: #333;
+    background: #fff;
+    outline: none;
+}
+
+#voice-select:focus { border-color: #9b59b6; }
+
+input[type="range"] {
+    flex: 1;
+    accent-color: #9b59b6;
+    height: 4px;
+}
+
+.range-val {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #7a3a9a;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.btn-test-voice {
+    margin-top: 8px;
+    background: none;
+    border: 2px solid #9b59b6;
+    border-radius: 50px;
+    color: #9b59b6;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-test-voice:hover { background: #9b59b6; color: #fff; }
+
 .images-list {
     display: flex;
     flex-direction: column;

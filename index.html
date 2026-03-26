@@ -142,6 +142,25 @@
         </div>
         <div class="settings-content">
             <div class="settings-section">
+                <h3 class="settings-section-title">🔊 Pupun ääni</h3>
+                <div class="name-input-row">
+                    <label for="voice-select">Ääni</label>
+                    <select id="voice-select"></select>
+                </div>
+                <div class="name-input-row">
+                    <label for="voice-pitch">Korkeus</label>
+                    <input type="range" id="voice-pitch" min="0.5" max="2.5" step="0.1" value="1.5">
+                    <span id="pitch-val" class="range-val">1.5</span>
+                </div>
+                <div class="name-input-row">
+                    <label for="voice-rate">Nopeus</label>
+                    <input type="range" id="voice-rate" min="0.5" max="1.8" step="0.1" value="1.0">
+                    <span id="rate-val" class="range-val">1.0</span>
+                </div>
+                <button class="btn-test-voice" onclick="testVoice()">🔊 Testaa ääni</button>
+            </div>
+
+            <div class="settings-section">
                 <h3 class="settings-section-title">👶 Lasten nimet</h3>
                 <div class="name-input-row">
                     <label for="child-name-1">Lapsi 1</label>
@@ -153,6 +172,7 @@
                 </div>
                 <p class="settings-note">Tallennetaan automaattisesti tähän laitteeseen.</p>
             </div>
+
 
             <h3 class="settings-section-title">🥚 Munien kuvat</h3>
             <p class="settings-desc">Lisää kuvia piilotetuista munista järjestyksessä.</p>

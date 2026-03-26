@@ -7,6 +7,7 @@ const state = {
 
 const STORAGE_KEY = 'easterbunny_eggs';
 const NAMES_KEY   = 'easterbunny_names';
+const VOICE_KEY   = 'easterbunny_voice';
 
 const CONGRATS = [
     'Hienoa! Löysit munan! 🎉',
@@ -201,6 +202,106 @@ function initEgg() {
     if (eggDiv) eggDiv.innerHTML = createEggSVG();
 }
 
+// ===== VOICE SETTINGS =====
+function loadVoiceSettings() {
+    try {
+        const saved = localStorage.getItem(VOICE_KEY);
+        return saved ? JSON.parse(saved) : { voiceName: '', pitch: 1.5, rate: 1.0 };
+    } catch (e) {
+        return { voiceName: '', pitch: 1.5, rate: 1.0 };
+    }
+}
+
+function saveVoiceSettings(settings) {
+    localStorage.setItem(VOICE_KEY, JSON.stringify(settings));
+}
+
+function populateVoiceList() {
+    const select = document.getElementById('voice-select');
+    if (!select) return;
+
+    const voices = speechSynthesis.getVoices();
+    if (voices.length === 0) return;
+
+    const saved = loadVoiceSettings();
+    select.innerHTML = '';
+
+    // Default option (browser picks Finnish)
+    const defOpt = document.createElement('option');
+    defOpt.value = '';
+    defOpt.textContent = '🌐 Oletus (fi-FI)';
+    select.appendChild(defOpt);
+
+    // Finnish voices first
+    const fi = voices.filter(v => v.lang.startsWith('fi'));
+    if (fi.length > 0) {
+        const grp = document.createElement('optgroup');
+        grp.label = '🇫🇮 Suomenkieliset';
+        fi.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v.name;
+            o.textContent = v.name;
+            grp.appendChild(o);
+        });
+        select.appendChild(grp);
+    }
+
+    // All other voices
+    const others = voices.filter(v => !v.lang.startsWith('fi'));
+    if (others.length > 0) {
+        const grp = document.createElement('optgroup');
+        grp.label = '🌍 Muut kielet';
+        others.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v.name;
+            o.textContent = `${v.name} (${v.lang})`;
+            grp.appendChild(o);
+        });
+        select.appendChild(grp);
+    }
+
+    select.value = saved.voiceName || '';
+}
+
+function setupVoiceControls() {
+    // Populate voices (may need to wait for async load)
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    const saved = loadVoiceSettings();
+
+    const pitchEl = document.getElementById('voice-pitch');
+    const rateEl  = document.getElementById('voice-rate');
+    pitchEl.value = saved.pitch;
+    rateEl.value  = saved.rate;
+    document.getElementById('pitch-val').textContent = saved.pitch;
+    document.getElementById('rate-val').textContent  = saved.rate;
+
+    pitchEl.addEventListener('input', () => {
+        document.getElementById('pitch-val').textContent = pitchEl.value;
+        const s = loadVoiceSettings();
+        s.pitch = parseFloat(pitchEl.value);
+        saveVoiceSettings(s);
+    });
+    rateEl.addEventListener('input', () => {
+        document.getElementById('rate-val').textContent = rateEl.value;
+        const s = loadVoiceSettings();
+        s.rate = parseFloat(rateEl.value);
+        saveVoiceSettings(s);
+    });
+    document.getElementById('voice-select').addEventListener('change', (e) => {
+        const s = loadVoiceSettings();
+        s.voiceName = e.target.value;
+        saveVoiceSettings(s);
+    });
+}
+
+function testVoice() {
+    speak('Hei! Minä olen Pääsiäispupu! Hauskaa pääsiäistä!');
+}
+
 // ===== NAMES =====
 function loadNames() {
     try {
@@ -240,6 +341,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
     setupNameInputs();
+    setupVoiceControls();
     initBunnies();
     initEgg();
     scheduleBlink();
@@ -278,17 +380,26 @@ function stopMouthAnimation() {
     document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = '');
 }
 
-function speak(text, pitch = 1.5, rate = 1.0) {
+function speak(text) {
     window.speechSynthesis.cancel();
     stopMouthAnimation();
 
     // Face forward during speech
     document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
 
+    const vs = loadVoiceSettings();
+    const voices = speechSynthesis.getVoices();
+    const voice = vs.voiceName ? voices.find(v => v.name === vs.voiceName) : null;
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fi-FI';
-    utterance.pitch = pitch;
-    utterance.rate = rate;
+    if (voice) {
+        utterance.voice = voice;
+        utterance.lang  = voice.lang;
+    } else {
+        utterance.lang  = 'fi-FI';
+    }
+    utterance.pitch  = vs.pitch ?? 1.5;
+    utterance.rate   = vs.rate  ?? 1.0;
     utterance.volume = 1;
 
     // Mouth moves ONLY when audio actually starts
@@ -384,10 +495,11 @@ function showIntro() { showScreen('screen-intro'); }
 
 function showSettings() {
     renderSettingsList();
-    // Populate name inputs with saved values
     const names = loadNames();
     document.getElementById('child-name-1').value = names.child1;
     document.getElementById('child-name-2').value = names.child2;
+    // Re-populate voices (may have loaded since last open)
+    populateVoiceList();
     showScreen('screen-settings');
 }
 
