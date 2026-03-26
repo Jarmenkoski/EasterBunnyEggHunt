@@ -719,11 +719,17 @@ function nextClue() {
 }
 
 function showComplete() {
+    const many = plural();
     document.getElementById('final-eggs').textContent = '🥚'.repeat(Math.min(state.eggs.length, 12));
     document.getElementById('final-greeting').innerHTML = buildGreetingHtml();
+    document.getElementById('complete-found-text').textContent =
+        many ? 'Löysitte kaikki munat!' : 'Löysit kaikki munat!';
+    document.getElementById('complete-mestari-text').innerHTML =
+        many ? 'Olette pääsiäismunajahdin <strong>mestarit</strong>! 🌟'
+             : 'Olet pääsiäismunajahdin <strong>mestari</strong>! 🌟';
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
-    const finalMsg = plural()
+    const finalMsg = many
         ? `Onneksi olkoon! Löysitte kaikki munat! Olette pääsiäismunajahdin mestarit!`
         : `Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari!`;
     speak(`${finalMsg} ${buildGreeting()}`);
