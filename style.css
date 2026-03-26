@@ -643,6 +643,12 @@ input[type="range"] {
     margin-bottom: 16px;
 }
 
+.add-image-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .storage-indicator {
     margin: 6px 0 12px;
     font-size: 0.82rem;

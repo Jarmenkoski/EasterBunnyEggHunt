@@ -645,8 +645,9 @@ function showUploadStatus(msg, isError) {
 }
 
 function setupFileUpload() {
-    const input = document.getElementById('image-upload');
-    input.addEventListener('change', async (e) => {
+    const input  = document.getElementById('image-upload');
+    const camera = document.getElementById('camera-capture');
+    const handler = async (e) => {
         const files = Array.from(e.target.files);
         let added = 0;
         const failedFiles = [];
@@ -690,12 +691,24 @@ function setupFileUpload() {
         } else if (added > 0) {
             showUploadStatus(`✓ ${added} kuva${added > 1 ? 'a' : ''} lisätty!`, false);
         }
-    });
+    };
+    input.addEventListener('change', handler);
+    camera.addEventListener('change', handler);
 }
 
-function compressImage(file, maxPx, quality) {
+async function compressImage(file, maxPx, quality) {
+    // Convert HEIC/HEIF to JPEG first (iPhone default format)
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+                   /\.hei[cf]$/i.test(file.name);
+    if (isHeic) {
+        if (typeof heic2any === 'undefined') throw new Error('decode');
+        const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 })
+            .catch(() => { throw new Error('decode'); });
+        file = blob instanceof Array ? blob[0] : blob;
+    }
+
     return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('timeout')), 15000);
+        const timeout = setTimeout(() => reject(new Error('timeout')), 20000);
         const done = (val) => { clearTimeout(timeout); resolve(val); };
         const fail = (err) => { clearTimeout(timeout); reject(err); };
 

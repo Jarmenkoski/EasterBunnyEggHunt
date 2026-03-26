@@ -182,10 +182,12 @@
                 <div id="storage-indicator" class="storage-indicator"></div>
                 <div id="images-list" class="images-list"></div>
                 <div class="add-image-section">
-                    <input type="file" id="image-upload" accept="image/*" multiple style="display:none">
-                    <button class="btn-primary" onclick="document.getElementById('image-upload').click()">
-                        📷 Lisää kuva(t)
-                    </button>
+                    <input type="file" id="image-upload" accept="image/*,image/heic,image/heif" multiple style="display:none">
+                    <input type="file" id="camera-capture" accept="image/*" capture="environment" style="display:none">
+                    <div class="add-image-buttons">
+                        <button class="btn-primary" onclick="document.getElementById('image-upload').click()">📷 Lisää kuva(t)</button>
+                        <button class="btn-secondary" onclick="document.getElementById('camera-capture').click()">📸 Ota kuva</button>
+                    </div>
                     <div id="upload-status" class="upload-status" style="display:none"></div>
                 </div>
                 <div class="settings-actions">
@@ -195,6 +197,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
