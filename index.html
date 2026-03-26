@@ -11,17 +11,41 @@
 <!-- Shared SVG gradient/filter defs for the 3D bunny -->
 <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
   <defs>
-    <radialGradient id="bunnyHeadGrad" cx="38%" cy="32%" r="65%">
+    <radialGradient id="bunnyHeadGrad" cx="35%" cy="28%" r="70%">
       <stop offset="0%"   stop-color="#ffffff"/>
-      <stop offset="50%"  stop-color="#f5f0ed"/>
-      <stop offset="100%" stop-color="#d8cfc8"/>
+      <stop offset="40%"  stop-color="#f8f3f0"/>
+      <stop offset="80%"  stop-color="#e8dfd8"/>
+      <stop offset="100%" stop-color="#d0c4bc"/>
     </radialGradient>
-    <radialGradient id="bunnyEarGrad" cx="35%" cy="28%" r="70%">
-      <stop offset="0%"   stop-color="#f8f4f0"/>
-      <stop offset="100%" stop-color="#c8bdb4"/>
+    <radialGradient id="bunnyEarGrad" cx="38%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#f5f0ec"/>
+      <stop offset="100%" stop-color="#c4b8b0"/>
+    </radialGradient>
+    <radialGradient id="bunnyInnerEarGrad" cx="40%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#ffccd8"/>
+      <stop offset="100%" stop-color="#e87898"/>
+    </radialGradient>
+    <radialGradient id="bunnyMuzzleGrad" cx="50%" cy="40%" r="55%">
+      <stop offset="0%"   stop-color="#fdfaf8"/>
+      <stop offset="100%" stop-color="#ece5de"/>
+    </radialGradient>
+    <radialGradient id="bunnyNoseGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#f08090"/>
+      <stop offset="100%" stop-color="#c03858"/>
     </radialGradient>
     <filter id="bunnyShadow" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="2" dy="5" stdDeviation="5" flood-color="#8b7355" flood-opacity="0.22"/>
+      <feDropShadow dx="2" dy="5" stdDeviation="6" flood-color="#8b6355" flood-opacity="0.25"/>
+    </filter>
+    <radialGradient id="eggBodyGrad" cx="32%" cy="25%" r="75%">
+      <stop offset="0%"   stop-color="#cce8f8"/>
+      <stop offset="50%"  stop-color="#80bce0"/>
+      <stop offset="100%" stop-color="#4e96c8"/>
+    </radialGradient>
+    <clipPath id="eggBodyClip">
+      <ellipse cx="110" cy="210" rx="74" ry="88"/>
+    </clipPath>
+    <filter id="eggGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="3" dy="6" stdDeviation="8" flood-color="#3878a8" flood-opacity="0.28"/>
     </filter>
   </defs>
 </svg>
@@ -32,7 +56,7 @@
         <div class="grass-bg"></div>
         <div class="intro-content">
             <div class="egg-scene">
-                <div id="egg-emoji" class="egg-emoji egg-idle" onclick="crackEgg()">🥚</div>
+                <div id="egg-emoji" class="egg-emoji egg-idle" onclick="crackEgg()"></div>
                 <div id="bunny-popup" class="bunny-popup hidden" data-bunny-id="popup"></div>
             </div>
             <div id="egg-hint" class="egg-hint">Napauta munaa! 👆</div>

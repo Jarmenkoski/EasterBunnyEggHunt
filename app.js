@@ -11,11 +11,11 @@ const CONGRATS = [
     'Hienoa! Löysit munan! 🎉',
     'Mahtavaa! Olet todella taitava! ⭐',
     'Vau! Kyllä sinä osaat! 🌟',
-    'Upea! Pääsiäispupu on ylpeä sinusta! 🐰',
-    'Huikeaa! Löysit munan niin nopeasti! 🚀',
-    'Loistavaa! Olet pääsiäisjahtimestari! 🥇',
+    'Upea! Pääsiäispupu on ylpeä sinusta!',
+    'Huikeaa! Löysit munan niin nopeasti!',
+    'Loistavaa! Olet pääsiäisjahtimestari!',
     'Ihana! Jatka samaan malliin! 🌈',
-    'Wau! Olet paras munanetsijä koko maailmassa! 🌍',
+    'Wau! Olet paras munanetsijä koko maailmassa!',
 ];
 
 const CLUE_MSGS = [
@@ -26,43 +26,131 @@ const CLUE_MSGS = [
     'Juokse ja etsi – muna on täällä!',
 ];
 
+// ===== EGG SVG (intro — ears through shell) =====
+function createEggSVG() {
+    return `<svg id="egg-inner-svg" viewBox="0 0 220 290"
+        xmlns="http://www.w3.org/2000/svg"
+        style="width:100%;height:100%;overflow:visible">
+
+  <!-- EARS (drawn first = behind egg) -->
+  <ellipse cx="72"  cy="110" rx="26" ry="80" fill="url(#bunnyEarGrad)"      transform="rotate(-14,72,215)" />
+  <ellipse cx="72"  cy="107" rx="15" ry="63" fill="url(#bunnyInnerEarGrad)" transform="rotate(-14,72,215)" opacity="0.88"/>
+  <ellipse cx="148" cy="110" rx="26" ry="80" fill="url(#bunnyEarGrad)"      transform="rotate(14,148,215)" />
+  <ellipse cx="148" cy="107" rx="15" ry="63" fill="url(#bunnyInnerEarGrad)" transform="rotate(14,148,215)" opacity="0.88"/>
+
+  <!-- EGG BODY (over the ear bases) -->
+  <ellipse cx="110" cy="210" rx="74" ry="88" fill="url(#eggBodyGrad)" filter="url(#eggGlow)"/>
+
+  <!-- Stripes clipped to egg shape -->
+  <g clip-path="url(#eggBodyClip)">
+    <rect x="36" y="200" width="148" height="38" fill="#f0c828"/>
+    <rect x="36" y="187" width="148" height="8"  fill="white" opacity="0.70"/>
+    <rect x="36" y="182" width="148" height="4"  fill="white" opacity="0.38"/>
+    <rect x="36" y="238" width="148" height="8"  fill="white" opacity="0.70"/>
+    <rect x="36" y="246" width="148" height="4"  fill="white" opacity="0.38"/>
+  </g>
+
+  <!-- Egg glossy highlight -->
+  <ellipse cx="84" cy="163" rx="22" ry="30" fill="white" opacity="0.26" transform="rotate(-20,84,163)"/>
+
+  <!-- Crack lines (hidden until clicked) -->
+  <g id="egg-cracks" style="display:none" opacity="0.65">
+    <path d="M110,128 L106,150 L114,164 L107,184" stroke="#4878a0" stroke-width="3"   fill="none" stroke-linecap="round"/>
+    <path d="M124,134 L121,153 L127,165"           stroke="#4878a0" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M95,138  L92,157"                     stroke="#4878a0" stroke-width="2"   fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Ground shadow -->
+  <ellipse cx="110" cy="285" rx="58" ry="7" fill="#608898" opacity="0.16"/>
+</svg>`;
+}
+
 // ===== BUNNY SVG =====
 function createBunnySVG() {
-    return `<svg class="bunny-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" aria-label="Pääsiäispupu">
-  <ellipse cx="100" cy="234" rx="52" ry="7" fill="#8b7355" opacity="0.18"/>
-  <ellipse cx="66"  cy="68" rx="22" ry="57" fill="url(#bunnyEarGrad)" transform="rotate(-9,66,118)"/>
-  <ellipse cx="66"  cy="65" rx="12" ry="43" fill="#f598b5" opacity="0.78" transform="rotate(-9,66,118)"/>
-  <ellipse cx="134" cy="68" rx="22" ry="57" fill="url(#bunnyEarGrad)" transform="rotate(9,134,118)"/>
-  <ellipse cx="134" cy="65" rx="12" ry="43" fill="#f598b5" opacity="0.78" transform="rotate(9,134,118)"/>
-  <ellipse cx="100" cy="148" rx="74" ry="78" fill="url(#bunnyHeadGrad)" filter="url(#bunnyShadow)"/>
-  <ellipse cx="100" cy="222" rx="50" ry="22" fill="url(#bunnyEarGrad)"/>
-  <ellipse cx="88"  cy="215" rx="26" ry="15" fill="white" opacity="0.22"/>
-  <ellipse cx="55"  cy="163" rx="22" ry="13" fill="#ffb0c8" opacity="0.4"/>
-  <ellipse cx="145" cy="163" rx="22" ry="13" fill="#ffb0c8" opacity="0.4"/>
-  <ellipse cx="72"  cy="134" rx="15" ry="17" fill="#1a1030"/>
-  <ellipse cx="73"  cy="134" rx="11" ry="13" fill="#302055"/>
-  <ellipse cx="76"  cy="127" rx="6"  ry="7"  fill="white"/>
-  <circle  cx="80"  cy="137" r="2"           fill="white" opacity="0.5"/>
-  <ellipse cx="128" cy="134" rx="15" ry="17" fill="#1a1030"/>
-  <ellipse cx="129" cy="134" rx="11" ry="13" fill="#302055"/>
-  <ellipse cx="132" cy="127" rx="6"  ry="7"  fill="white"/>
-  <circle  cx="136" cy="137" r="2"           fill="white" opacity="0.5"/>
-  <path d="M100,154 C100,152 97,148 93,149 C89,150 89,156 100,163 C111,156 111,150 107,149 C103,148 100,152 100,154Z" fill="#e06880"/>
-  <ellipse cx="96" cy="152" rx="3" ry="2" fill="white" opacity="0.4"/>
-  <line x1="30"  y1="158" x2="88"  y2="160" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <line x1="32"  y1="166" x2="88"  y2="165" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <line x1="30"  y1="174" x2="88"  y2="170" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <line x1="112" y1="160" x2="170" y2="158" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <line x1="112" y1="165" x2="168" y2="166" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <line x1="112" y1="170" x2="170" y2="174" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <g class="mouth-closed-part">
-    <path d="M85,170 Q100,180 115,170" stroke="#c06878" stroke-width="3" fill="none" stroke-linecap="round"/>
+    return `<svg class="bunny-svg" viewBox="0 0 200 245"
+        xmlns="http://www.w3.org/2000/svg" aria-label="Pääsiäispupu">
+
+  <!-- Ground shadow -->
+  <ellipse cx="100" cy="241" rx="52" ry="6" fill="#8b7355" opacity="0.14"/>
+
+  <!-- EARS -->
+  <ellipse cx="65"  cy="65"  rx="23" ry="62" fill="url(#bunnyEarGrad)"      transform="rotate(-10,65,120)"/>
+  <ellipse cx="65"  cy="62"  rx="13" ry="48" fill="url(#bunnyInnerEarGrad)" transform="rotate(-10,65,120)" opacity="0.9"/>
+  <ellipse cx="65"  cy="60"  rx="7"  ry="33" fill="#d83870"                 transform="rotate(-10,65,120)" opacity="0.15"/>
+  <ellipse cx="135" cy="65"  rx="23" ry="62" fill="url(#bunnyEarGrad)"      transform="rotate(10,135,120)"/>
+  <ellipse cx="135" cy="62"  rx="13" ry="48" fill="url(#bunnyInnerEarGrad)" transform="rotate(10,135,120)" opacity="0.9"/>
+  <ellipse cx="135" cy="60"  rx="7"  ry="33" fill="#d83870"                 transform="rotate(10,135,120)" opacity="0.15"/>
+
+  <!-- HEAD (round, 3D gradient) -->
+  <ellipse cx="102" cy="157" rx="72" ry="76" fill="#c0a888" opacity="0.16"/>
+  <ellipse cx="100" cy="150" rx="76" ry="76" fill="url(#bunnyHeadGrad)" filter="url(#bunnyShadow)"/>
+  <!-- Rim light (right side) -->
+  <ellipse cx="158" cy="140" rx="15" ry="30" fill="white" opacity="0.10" transform="rotate(18,158,140)"/>
+
+  <!-- MUZZLE patch -->
+  <ellipse cx="100" cy="169" rx="40" ry="33" fill="url(#bunnyMuzzleGrad)" opacity="0.68"/>
+
+  <!-- BODY peek -->
+  <ellipse cx="100" cy="226" rx="52" ry="23" fill="url(#bunnyEarGrad)"/>
+  <ellipse cx="87"  cy="219" rx="27" ry="15" fill="white" opacity="0.18"/>
+
+  <!-- CHEEKS -->
+  <ellipse cx="51"  cy="165" rx="25" ry="14" fill="#ffb0c8" opacity="0.30"/>
+  <ellipse cx="149" cy="165" rx="25" ry="14" fill="#ffb0c8" opacity="0.30"/>
+
+  <!-- LEFT EYE -->
+  <g class="bunny-eye">
+    <ellipse cx="72" cy="131" rx="18" ry="19" fill="#1a0f30" opacity="0.10"/>
+    <ellipse cx="72" cy="131" rx="16" ry="17" fill="#ede7f6"/>
+    <ellipse cx="72" cy="132" rx="12" ry="13" fill="#4838a0"/>
+    <ellipse cx="72" cy="132" rx="9.5" ry="10.5" fill="#5848b8"/>
+    <ellipse cx="72" cy="133" rx="7"  ry="8"   fill="#0a0820"/>
+    <ellipse cx="76" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.92"/>
+    <circle  cx="80" cy="136" r="2.2"           fill="white" opacity="0.52"/>
   </g>
+
+  <!-- RIGHT EYE -->
+  <g class="bunny-eye">
+    <ellipse cx="128" cy="131" rx="18" ry="19" fill="#1a0f30" opacity="0.10"/>
+    <ellipse cx="128" cy="131" rx="16" ry="17" fill="#ede7f6"/>
+    <ellipse cx="128" cy="132" rx="12" ry="13" fill="#4838a0"/>
+    <ellipse cx="128" cy="132" rx="9.5" ry="10.5" fill="#5848b8"/>
+    <ellipse cx="128" cy="133" rx="7"  ry="8"   fill="#0a0820"/>
+    <ellipse cx="132" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.92"/>
+    <circle  cx="136" cy="136" r="2.2"           fill="white" opacity="0.52"/>
+  </g>
+
+  <!-- NOSE (heart shape) -->
+  <path d="M100,155 C100,153 97.5,149 93,150 C88.5,151 88.5,157.5 100,165 C111.5,157.5 111.5,151 107,150 C102.5,149 100,153 100,155Z"
+        fill="url(#bunnyNoseGrad)"/>
+  <ellipse cx="96" cy="153" rx="3" ry="1.8" fill="white" opacity="0.42"/>
+
+  <!-- WHISKER DOTS -->
+  <circle cx="86"  cy="162" r="3.5" fill="#c0b8b0" opacity="0.42"/>
+  <circle cx="86"  cy="172" r="3.5" fill="#c0b8b0" opacity="0.42"/>
+  <circle cx="114" cy="162" r="3.5" fill="#c0b8b0" opacity="0.42"/>
+  <circle cx="114" cy="172" r="3.5" fill="#c0b8b0" opacity="0.42"/>
+
+  <!-- WHISKERS -->
+  <line x1="26"  y1="160" x2="83"  y2="163" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="28"  y1="168" x2="83"  y2="168" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="26"  y1="176" x2="83"  y2="173" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="117" y1="163" x2="174" y2="160" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="117" y1="168" x2="172" y2="168" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="117" y1="173" x2="174" y2="176" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- MOUTH CLOSED -->
+  <g class="mouth-closed-part">
+    <path d="M88,175 Q100,185 112,175" stroke="#9c5868" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- MOUTH OPEN -->
   <g class="mouth-open-part" style="display:none">
-    <path d="M85,170 Q100,188 115,170" stroke="#c06878" stroke-width="2.5" fill="#d07080" stroke-linecap="round"/>
-    <rect x="91"  y="170" width="9" height="9" fill="#f5f0ed" rx="2"/>
-    <rect x="100" y="170" width="9" height="9" fill="#f5f0ed" rx="2"/>
-    <line x1="100" y1="170" x2="100" y2="179" stroke="#d07080" stroke-width="1.5"/>
+    <path d="M88,175 Q100,194 112,175" stroke="#9c5868" stroke-width="2" fill="#be7080" stroke-linecap="round"/>
+    <rect x="92"    y="175" width="8.5" height="9" fill="#f5f0ec" rx="2"/>
+    <rect x="100.5" y="175" width="8.5" height="9" fill="#f5f0ec" rx="2"/>
+    <line x1="100.5" y1="175" x2="100.5" y2="184" stroke="#be7080" stroke-width="1.5"/>
+    <ellipse cx="100" cy="191" rx="10" ry="5.5" fill="#e87090" opacity="0.72"/>
   </g>
 </svg>`;
 }
@@ -73,14 +161,21 @@ function initBunnies() {
     });
 }
 
+function initEgg() {
+    const eggDiv = document.getElementById('egg-emoji');
+    if (eggDiv) eggDiv.innerHTML = createEggSVG();
+}
+
 // ===== INIT =====
 window.addEventListener('DOMContentLoaded', () => {
     loadEggs();
     setupFileUpload();
     initBunnies();
-    // Animation starts on egg click, not automatically
+    initEgg();
+    scheduleBlink();
 });
 
+// ===== LOAD / SAVE =====
 function loadEggs() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -104,7 +199,7 @@ function startMouthAnimation() {
         open = !open;
         document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = open ? '' : 'none');
         document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = open ? 'none' : '');
-    }, 170);
+    }, 165);
 }
 
 function stopMouthAnimation() {
@@ -115,72 +210,114 @@ function stopMouthAnimation() {
 
 function speak(text, pitch = 1.5, rate = 1.0) {
     window.speechSynthesis.cancel();
+    stopMouthAnimation();
+
+    // Face forward during speech
+    document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fi-FI';
     utterance.pitch = pitch;
     utterance.rate = rate;
     utterance.volume = 1;
-    utterance.onend = () => stopMouthAnimation();
-    utterance.onerror = () => stopMouthAnimation();
+
+    // Mouth moves ONLY when audio actually starts
+    utterance.onstart = () => startMouthAnimation();
+
+    utterance.onend = () => {
+        stopMouthAnimation();
+        setTimeout(() => {
+            document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
+        }, 500);
+    };
+    utterance.onerror = () => {
+        stopMouthAnimation();
+        document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
+    };
+
     window.speechSynthesis.speak(utterance);
-    startMouthAnimation();
 }
 
+// ===== BLINK =====
+let blinkTimer = null;
+
+function scheduleBlink() {
+    const delay = 2200 + Math.random() * 5000;
+    blinkTimer = setTimeout(() => {
+        triggerBlink();
+        scheduleBlink();
+    }, delay);
+}
+
+function triggerBlink() {
+    document.querySelectorAll('.bunny-eye').forEach(eye => {
+        eye.classList.add('blinking');
+        setTimeout(() => eye.classList.remove('blinking'), 200);
+    });
+}
+
+// ===== EGG CLICK + INTRO ANIMATION =====
 let eggClicked = false;
 
 function crackEgg() {
     if (eggClicked) return;
     eggClicked = true;
 
-    const eggEl    = document.getElementById('egg-emoji');
-    const bunnyEl  = document.getElementById('bunny-popup');
+    const eggDiv  = document.getElementById('egg-emoji');
+    const bunnyEl = document.getElementById('bunny-popup');
     const speechEl = document.getElementById('intro-speech');
     const btnStart = document.getElementById('btn-start');
-    const hintEl   = document.getElementById('egg-hint');
+    const hintEl  = document.getElementById('egg-hint');
 
     hintEl.style.display = 'none';
 
-    eggEl.classList.remove('egg-idle');
-    eggEl.classList.add('shaking');
+    // Phase 1: shake
+    eggDiv.classList.remove('egg-idle');
+    eggDiv.classList.add('shaking');
 
+    // Phase 2: show cracks
     setTimeout(() => {
-        eggEl.classList.remove('shaking');
-        eggEl.textContent = '🐣';
-        eggEl.classList.add('cracking');
+        eggDiv.classList.remove('shaking');
+        const cracks = document.getElementById('egg-cracks');
+        if (cracks) cracks.style.display = '';
+        eggDiv.classList.add('cracking');
     }, 1200);
 
+    // Phase 3: egg gone, bunny pops up
     setTimeout(() => {
-        eggEl.style.display = 'none';
+        eggDiv.style.display = 'none';
         bunnyEl.classList.remove('hidden');
         bunnyEl.classList.add('popping');
     }, 1700);
 
+    // Phase 4: speech bubble
     setTimeout(() => {
         speechEl.classList.remove('hidden');
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
         speak('Hei! Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?');
     }, 2300);
 
+    // Phase 5: start button
     setTimeout(() => {
         btnStart.classList.remove('hidden');
         btnStart.style.animation = 'fadeSlideIn 0.4s ease';
     }, 2900);
 }
 
+// ===== SCREEN NAVIGATION =====
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-function showIntro() {
-    showScreen('screen-intro');
-}
+function showIntro() { showScreen('screen-intro'); }
 
 function showSettings() {
     renderSettingsList();
     showScreen('screen-settings');
 }
 
+// ===== HUNT FLOW =====
 function startHunt() {
     if (state.eggs.length === 0) {
         alert('Lisää ensin kuvia asetuksista! ⚙️\n\nNapauta asetukset-painiketta yläkulmassa.');
@@ -193,12 +330,11 @@ function startHunt() {
 
 function showClue() {
     const egg = state.eggs[state.current];
-    const total = state.eggs.length;
     const clueMsg = pickRandom(CLUE_MSGS);
 
     document.getElementById('clue-image').src = egg.dataUrl;
     document.getElementById('egg-current').textContent = state.current + 1;
-    document.getElementById('egg-total').textContent = total;
+    document.getElementById('egg-total').textContent = state.eggs.length;
     document.getElementById('clue-text').textContent = clueMsg;
 
     showScreen('screen-clue');
@@ -210,13 +346,9 @@ function eggFound() {
     const msg = pickRandom(CONGRATS);
 
     document.getElementById('found-message').textContent = msg;
-
-    const btnNext = document.getElementById('btn-next');
-    if (isLast) {
-        btnNext.textContent = '🏆 Katso lopputulos!';
-    } else {
-        btnNext.textContent = 'Katso seuraava vihje →';
-    }
+    document.getElementById('btn-next').textContent = isLast
+        ? '🏆 Katso lopputulos!'
+        : 'Katso seuraava vihje →';
 
     launchConfetti('confetti-container');
     showScreen('screen-found');
@@ -233,9 +365,7 @@ function nextClue() {
 }
 
 function showComplete() {
-    const eggsRow = document.getElementById('final-eggs');
-    eggsRow.textContent = '🥚'.repeat(Math.min(state.eggs.length, 12));
-
+    document.getElementById('final-eggs').textContent = '🥚'.repeat(Math.min(state.eggs.length, 12));
     launchConfetti('confetti-container-final');
     showScreen('screen-complete');
     speak('Onneksi olkoon! Löysit kaikki munat! Olet pääsiäismunajahdin mestari! Hauskaa pääsiäistä Joona ja Jolanda!');
@@ -244,16 +374,17 @@ function showComplete() {
 function restartHunt() {
     state.current = 0;
     eggClicked = false;
+    stopMouthAnimation();
 
-    const eggEl    = document.getElementById('egg-emoji');
-    const bunnyEl  = document.getElementById('bunny-popup');
+    const eggDiv  = document.getElementById('egg-emoji');
+    const bunnyEl = document.getElementById('bunny-popup');
     const speechEl = document.getElementById('intro-speech');
     const btnStart = document.getElementById('btn-start');
-    const hintEl   = document.getElementById('egg-hint');
+    const hintEl  = document.getElementById('egg-hint');
 
-    eggEl.style.display = '';
-    eggEl.textContent = '🥚';
-    eggEl.className = 'egg-emoji egg-idle';
+    eggDiv.style.display = '';
+    eggDiv.innerHTML = createEggSVG();
+    eggDiv.className = 'egg-emoji egg-idle';
     bunnyEl.className = 'bunny-popup hidden';
     speechEl.classList.add('hidden');
     btnStart.classList.add('hidden');
@@ -262,17 +393,13 @@ function restartHunt() {
     showIntro();
 }
 
+// ===== SETTINGS =====
 function setupFileUpload() {
     const input = document.getElementById('image-upload');
     input.addEventListener('change', async (e) => {
-        const files = Array.from(e.target.files);
-        for (const file of files) {
+        for (const file of Array.from(e.target.files)) {
             const dataUrl = await fileToDataUrl(file);
-            state.eggs.push({
-                id: Date.now() + Math.random(),
-                dataUrl,
-                name: file.name,
-            });
+            state.eggs.push({ id: Date.now() + Math.random(), dataUrl, name: file.name });
         }
         saveEggs();
         renderSettingsList();
@@ -299,11 +426,10 @@ function renderSettingsList() {
                 <div class="image-item-num">Muna nro ${i + 1}</div>
             </div>
             <div class="image-item-actions">
-                <button class="btn-icon up" onclick="moveEgg(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
-                <button class="btn-icon down" onclick="moveEgg(${i}, 1)" ${i === state.eggs.length - 1 ? 'disabled' : ''}>▼</button>
+                <button class="btn-icon up"     onclick="moveEgg(${i},-1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                <button class="btn-icon down"   onclick="moveEgg(${i}, 1)" ${i === state.eggs.length-1 ? 'disabled' : ''}>▼</button>
                 <button class="btn-icon delete" onclick="deleteEgg(${i})">✕</button>
-            </div>
-        `;
+            </div>`;
         list.appendChild(item);
     });
 }
@@ -315,11 +441,9 @@ function deleteEgg(index) {
 }
 
 function moveEgg(index, direction) {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= state.eggs.length) return;
-    const temp = state.eggs[index];
-    state.eggs[index] = state.eggs[newIndex];
-    state.eggs[newIndex] = temp;
+    const ni = index + direction;
+    if (ni < 0 || ni >= state.eggs.length) return;
+    [state.eggs[index], state.eggs[ni]] = [state.eggs[ni], state.eggs[index]];
     saveEggs();
     renderSettingsList();
 }
@@ -331,26 +455,28 @@ function clearAllImages() {
     renderSettingsList();
 }
 
+// ===== CONFETTI =====
 function launchConfetti(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    const colors = ['#f4c842', '#ff6b9d', '#5cb85c', '#9b59b6', '#3498db', '#e74c3c', '#ff8c00'];
+    const colors = ['#f4c842','#ff6b9d','#5cb85c','#9b59b6','#3498db','#e74c3c','#ff8c00'];
     for (let i = 0; i < 60; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.left = Math.random() * 100 + 'vw';
-        piece.style.top = '-20px';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.width = (6 + Math.random() * 8) + 'px';
-        piece.style.height = (6 + Math.random() * 8) + 'px';
-        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-        piece.style.animationDelay = (Math.random() * 0.8) + 's';
-        container.appendChild(piece);
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.top = '-20px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.width  = (6 + Math.random() * 8) + 'px';
+        p.style.height = (6 + Math.random() * 8) + 'px';
+        p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+        p.style.animationDelay   = (Math.random() * 0.8) + 's';
+        container.appendChild(p);
     }
     setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
+// ===== UTILS =====
 function fileToDataUrl(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -360,9 +486,7 @@ function fileToDataUrl(file) {
     });
 }
 
-function pickRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
+function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

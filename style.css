@@ -236,22 +236,19 @@ html, body {
 
 .egg-scene {
     position: relative;
-    width: 140px;
-    height: 160px;
+    width: 190px;
+    height: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .egg-emoji {
-    font-size: 100px;
-    line-height: 1;
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
-    transition: all 0.3s;
-}
-
-.egg-emoji {
+    width: 165px;
+    height: 225px;
     cursor: pointer;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.2));
+    transition: filter 0.3s;
 }
 
 .egg-idle {
@@ -274,12 +271,34 @@ html, body {
 .bunny-svg {
     display: block;
     overflow: visible;
+    will-change: transform;
 }
 
-.bunny-popup .bunny-svg    { width: 120px; height: 130px; }
-.bunny-small .bunny-svg    { width: 65px;  height: 70px;  }
-.bunny-celebrate .bunny-svg { width: 130px; height: 140px; }
-.bunny-big .bunny-svg      { width: 130px; height: 140px; }
+.bunny-popup .bunny-svg     { width: 130px; height: 140px; }
+.bunny-small .bunny-svg     { width: 68px;  height: 74px;  }
+.bunny-celebrate .bunny-svg { width: 135px; height: 145px; }
+.bunny-big .bunny-svg       { width: 135px; height: 145px; }
+
+/* Idle head-turn for intro + clue bunnies only */
+#bunny-popup .bunny-svg,
+.bunny-small .bunny-svg {
+    animation: bunnyIdleAnim 9s ease-in-out infinite;
+    transform-origin: 50% 55%;
+}
+
+/* Faces forward when speaking */
+.bunny-svg.bunny-speaking {
+    animation: bunnyFaceForward 0.35s ease forwards !important;
+}
+
+/* Blink */
+.bunny-eye {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+}
+.bunny-eye.blinking {
+    animation: bunnyBlink 0.15s ease;
+}
 
 .bunny-popup.hidden { display: none; }
 .bunny-popup.popping { animation: bunnyPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -560,8 +579,26 @@ html, body {
 }
 
 @keyframes eggIdle {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50%       { transform: translateY(-12px) rotate(3deg); }
+    0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
+    50%       { transform: translateY(-10px) rotate(2deg) scale(1.02); }
+}
+
+@keyframes bunnyIdleAnim {
+    0%        { transform: perspective(550px) rotateY(0deg)   translateY(0px);  }
+    12%       { transform: perspective(550px) rotateY(-14deg) translateY(-4px); }
+    28%, 48%  { transform: perspective(550px) rotateY(0deg)   translateY(-1px); }
+    58%       { transform: perspective(550px) rotateY(0deg)   translateY(0px);  }
+    70%       { transform: perspective(550px) rotateY(12deg)  translateY(-3px); }
+    85%, 100% { transform: perspective(550px) rotateY(0deg)   translateY(0px);  }
+}
+
+@keyframes bunnyFaceForward {
+    to { transform: perspective(550px) rotateY(0deg) translateY(0px); }
+}
+
+@keyframes bunnyBlink {
+    0%, 100% { transform: scaleY(1); }
+    50%      { transform: scaleY(0.06); }
 }
 
 @keyframes hintPulse {
