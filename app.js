@@ -9,6 +9,8 @@ const STORAGE_KEY = 'easterbunny_eggs';
 const NAMES_KEY   = 'easterbunny_names';
 const VOICE_KEY   = 'easterbunny_voice';
 
+let cachedVoices = [];
+
 const CONGRATS = [
     'Hienoa! Löysit munan! 🎉',
     'Mahtavaa! Olet todella taitava! ⭐',
@@ -218,10 +220,12 @@ function saveVoiceSettings(settings) {
 
 function populateVoiceList() {
     const select = document.getElementById('voice-select');
-    if (!select) return;
 
     const voices = speechSynthesis.getVoices();
     if (voices.length === 0) return;
+    cachedVoices = voices;
+
+    if (!select) return;
 
     const saved = loadVoiceSettings();
     select.innerHTML = '';
@@ -232,33 +236,50 @@ function populateVoiceList() {
     defOpt.textContent = '🌐 Oletus (fi-FI)';
     select.appendChild(defOpt);
 
+    function genderLabel(v) {
+        const n = v.name.toLowerCase();
+        if (n.includes('male') && !n.includes('female')) return ' ♂';
+        if (n.includes('female')) return ' ♀';
+        // Common Finnish/Nordic male names
+        const maleNames = ['onni','oskari','harri','mikko','juhani','adam','george','daniel','thomas','oliver'];
+        const femaleNames = ['satu','siiri','elina','anna','liisa','karin','alice','victoria','karen','samantha','moira'];
+        const first = v.name.split(' ')[0].toLowerCase();
+        if (maleNames.includes(first)) return ' ♂';
+        if (femaleNames.includes(first)) return ' ♀';
+        return '';
+    }
+
+    function makeOption(v, showLang) {
+        const o = document.createElement('option');
+        o.value = v.name;
+        o.textContent = v.name + genderLabel(v) + (showLang ? ` (${v.lang})` : '');
+        return o;
+    }
+
     // Finnish voices first
     const fi = voices.filter(v => v.lang.startsWith('fi'));
     if (fi.length > 0) {
         const grp = document.createElement('optgroup');
         grp.label = '🇫🇮 Suomenkieliset';
-        fi.forEach(v => {
-            const o = document.createElement('option');
-            o.value = v.name;
-            o.textContent = v.name;
-            grp.appendChild(o);
-        });
+        fi.forEach(v => grp.appendChild(makeOption(v, false)));
         select.appendChild(grp);
     }
 
-    // All other voices
+    // Group other voices by language
     const others = voices.filter(v => !v.lang.startsWith('fi'));
-    if (others.length > 0) {
+    const byLang = {};
+    others.forEach(v => {
+        const key = v.lang.split('-')[0];
+        if (!byLang[key]) byLang[key] = [];
+        byLang[key].push(v);
+    });
+    const langNames = { en:'🇬🇧 Englanti', sv:'🇸🇪 Ruotsi', no:'🇳🇴 Norja', da:'🇩🇰 Tanska', de:'🇩🇪 Saksa', fr:'🇫🇷 Ranska', es:'🇪🇸 Espanja', it:'🇮🇹 Italia' };
+    Object.keys(byLang).sort().forEach(key => {
         const grp = document.createElement('optgroup');
-        grp.label = '🌍 Muut kielet';
-        others.forEach(v => {
-            const o = document.createElement('option');
-            o.value = v.name;
-            o.textContent = `${v.name} (${v.lang})`;
-            grp.appendChild(o);
-        });
+        grp.label = langNames[key] || `🌍 ${key.toUpperCase()}`;
+        byLang[key].forEach(v => grp.appendChild(makeOption(v, true)));
         select.appendChild(grp);
-    }
+    });
 
     select.value = saved.voiceName || '';
 }
@@ -388,7 +409,7 @@ function speak(text) {
     document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
 
     const vs = loadVoiceSettings();
-    const voices = speechSynthesis.getVoices();
+    const voices = cachedVoices.length > 0 ? cachedVoices : speechSynthesis.getVoices();
     const voice = vs.voiceName ? voices.find(v => v.name === vs.voiceName) : null;
 
     const utterance = new SpeechSynthesisUtterance(text);
