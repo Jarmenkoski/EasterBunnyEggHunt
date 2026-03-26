@@ -267,6 +267,8 @@ function populateVoiceList() {
         const n = v.name.toLowerCase();
         if (n.includes('male') && !n.includes('female')) return ' ♂';
         if (n.includes('female')) return ' ♀';
+        // Google Cloud TTS: en-US-Neural2-F / en-US-Wavenet-M
+        if (/-[fm]$/i.test(v.name)) return /f$/i.test(v.name) ? ' ♀' : ' ♂';
         const maleNames = ['onni','oskari','harri','mikko','juhani','adam','george','daniel','thomas','oliver'];
         const femaleNames = ['satu','siiri','elina','anna','liisa','karin','alice','victoria','karen','samantha','moira'];
         const first = v.name.split(/[-_ ]/)[0].toLowerCase();
@@ -275,13 +277,19 @@ function populateVoiceList() {
         return '';
     }
 
-    // Show a clean label: prefer the voice name if it looks human, else show lang
+    // Show a clean label: strip lang prefix from Android/Cloud TTS voice names
     function voiceLabel(v) {
         const n = v.name;
         const lang = normLang(v.lang);
-        // Android voices often have names like "fi-FI-language" — not useful to show
-        const looksLikeLangCode = /^[a-z]{2}[-_]/i.test(n);
-        const label = looksLikeLangCode ? lang : n;
+        // Voice names like "fi-FI-x-fif-local" or "en-US-Neural2-F":
+        // strip the leading lang prefix (e.g. "en-US-") to get "Neural2-F"
+        const stripped = n.replace(/^[a-z]{2}[-_][a-z]{2}[-_]/i, '').trim();
+        // If stripping left something meaningful (not just "x-...-local/network"), use it
+        const suffix = stripped && !/^x[-_].*(local|network|language)$/i.test(stripped)
+            ? stripped : '';
+        const label = /^[a-z]{2}[-_]/i.test(n)
+            ? (suffix ? `${lang} ${suffix}` : lang)
+            : n;
         return label + genderLabel(v);
     }
 
