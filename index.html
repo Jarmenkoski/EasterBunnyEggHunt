@@ -36,6 +36,10 @@
     <filter id="bunnyShadow" x="-15%" y="-15%" width="130%" height="130%">
       <feDropShadow dx="2" dy="5" stdDeviation="6" flood-color="#8b6355" flood-opacity="0.25"/>
     </filter>
+    <filter id="furEdge" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="42" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
     <radialGradient id="eggBodyGrad" cx="32%" cy="25%" r="75%">
       <stop offset="0%"   stop-color="#cce8f8"/>
       <stop offset="50%"  stop-color="#80bce0"/>

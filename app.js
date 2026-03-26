@@ -73,84 +73,118 @@ function createBunnySVG() {
   <!-- Ground shadow -->
   <ellipse cx="100" cy="241" rx="52" ry="6" fill="#8b7355" opacity="0.14"/>
 
-  <!-- EARS -->
-  <ellipse cx="65"  cy="65"  rx="23" ry="62" fill="url(#bunnyEarGrad)"      transform="rotate(-10,65,120)"/>
-  <ellipse cx="65"  cy="62"  rx="13" ry="48" fill="url(#bunnyInnerEarGrad)" transform="rotate(-10,65,120)" opacity="0.9"/>
-  <ellipse cx="65"  cy="60"  rx="7"  ry="33" fill="#d83870"                 transform="rotate(-10,65,120)" opacity="0.15"/>
-  <ellipse cx="135" cy="65"  rx="23" ry="62" fill="url(#bunnyEarGrad)"      transform="rotate(10,135,120)"/>
-  <ellipse cx="135" cy="62"  rx="13" ry="48" fill="url(#bunnyInnerEarGrad)" transform="rotate(10,135,120)" opacity="0.9"/>
-  <ellipse cx="135" cy="60"  rx="7"  ry="33" fill="#d83870"                 transform="rotate(10,135,120)" opacity="0.15"/>
+  <!-- EARS (behind head) -->
+  <ellipse cx="65"  cy="65"  rx="23" ry="63" fill="url(#bunnyEarGrad)"      transform="rotate(-10,65,120)" filter="url(#furEdge)"/>
+  <ellipse cx="65"  cy="62"  rx="13" ry="49" fill="url(#bunnyInnerEarGrad)" transform="rotate(-10,65,120)" opacity="0.92"/>
+  <ellipse cx="65"  cy="60"  rx="7"  ry="34" fill="#c83060"                 transform="rotate(-10,65,120)" opacity="0.18"/>
+  <ellipse cx="135" cy="65"  rx="23" ry="63" fill="url(#bunnyEarGrad)"      transform="rotate(10,135,120)" filter="url(#furEdge)"/>
+  <ellipse cx="135" cy="62"  rx="13" ry="49" fill="url(#bunnyInnerEarGrad)" transform="rotate(10,135,120)" opacity="0.92"/>
+  <ellipse cx="135" cy="60"  rx="7"  ry="34" fill="#c83060"                 transform="rotate(10,135,120)" opacity="0.18"/>
 
-  <!-- HEAD (round, 3D gradient) -->
-  <ellipse cx="102" cy="157" rx="72" ry="76" fill="#c0a888" opacity="0.16"/>
-  <ellipse cx="100" cy="150" rx="76" ry="76" fill="url(#bunnyHeadGrad)" filter="url(#bunnyShadow)"/>
-  <!-- Rim light (right side) -->
-  <ellipse cx="158" cy="140" rx="15" ry="30" fill="white" opacity="0.10" transform="rotate(18,158,140)"/>
+  <!-- HEAD — ambient occlusion base + main sphere -->
+  <ellipse cx="103" cy="158" rx="72" ry="76" fill="#b09878" opacity="0.18"/>
+  <ellipse cx="100" cy="150" rx="76" ry="76" fill="url(#bunnyHeadGrad)" filter="url(#furEdge)"/>
+
+  <!-- Subsurface warmth (cheek/lower face glow) -->
+  <ellipse cx="83"  cy="162" rx="40" ry="32" fill="#f8d0b8" opacity="0.16" transform="rotate(-12,83,162)"/>
+  <!-- Specular highlight top-left -->
+  <ellipse cx="74"  cy="110" rx="26" ry="20" fill="white"   opacity="0.15" transform="rotate(-22,74,110)"/>
+  <!-- Rim light right edge -->
+  <ellipse cx="160" cy="142" rx="14" ry="30" fill="white"   opacity="0.09" transform="rotate(18,160,142)"/>
+
+  <!-- Forehead fur hints -->
+  <g fill="none" stroke="#cec6bc" stroke-width="2.2" stroke-linecap="round" opacity="0.28">
+    <line x1="83"  y1="76" x2="80"  y2="86"/>
+    <line x1="94"  y1="73" x2="92"  y2="83"/>
+    <line x1="106" y1="73" x2="108" y2="83"/>
+    <line x1="117" y1="76" x2="120" y2="86"/>
+  </g>
 
   <!-- MUZZLE patch -->
-  <ellipse cx="100" cy="169" rx="40" ry="33" fill="url(#bunnyMuzzleGrad)" opacity="0.68"/>
+  <ellipse cx="100" cy="169" rx="40" ry="33" fill="url(#bunnyMuzzleGrad)" opacity="0.70"/>
 
   <!-- BODY peek -->
-  <ellipse cx="100" cy="226" rx="52" ry="23" fill="url(#bunnyEarGrad)"/>
+  <ellipse cx="100" cy="226" rx="52" ry="23" fill="url(#bunnyEarGrad)" filter="url(#furEdge)"/>
   <ellipse cx="87"  cy="219" rx="27" ry="15" fill="white" opacity="0.18"/>
 
   <!-- CHEEKS -->
-  <ellipse cx="51"  cy="165" rx="25" ry="14" fill="#ffb0c8" opacity="0.30"/>
-  <ellipse cx="149" cy="165" rx="25" ry="14" fill="#ffb0c8" opacity="0.30"/>
+  <ellipse cx="51"  cy="166" rx="26" ry="15" fill="#ffb0c8" opacity="0.32"/>
+  <ellipse cx="149" cy="166" rx="26" ry="15" fill="#ffb0c8" opacity="0.32"/>
 
   <!-- LEFT EYE -->
   <g class="bunny-eye">
-    <ellipse cx="72" cy="131" rx="18" ry="19" fill="#1a0f30" opacity="0.10"/>
-    <ellipse cx="72" cy="131" rx="16" ry="17" fill="#ede7f6"/>
-    <ellipse cx="72" cy="132" rx="12" ry="13" fill="#4838a0"/>
-    <ellipse cx="72" cy="132" rx="9.5" ry="10.5" fill="#5848b8"/>
-    <ellipse cx="72" cy="133" rx="7"  ry="8"   fill="#0a0820"/>
-    <ellipse cx="76" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.92"/>
-    <circle  cx="80" cy="136" r="2.2"           fill="white" opacity="0.52"/>
+    <!-- Socket shadow -->
+    <ellipse cx="72" cy="131" rx="19" ry="20" fill="#180e2e" opacity="0.11"/>
+    <!-- Sclera -->
+    <ellipse cx="72" cy="131" rx="16" ry="17" fill="#ece6f5"/>
+    <!-- Iris layers -->
+    <ellipse cx="72" cy="132" rx="12" ry="13" fill="#3828a0"/>
+    <ellipse cx="72" cy="132" rx="10" ry="11" fill="#4838b8"/>
+    <ellipse cx="72" cy="132" rx="7.5" ry="8.5" fill="#3020a8"/>
+    <!-- Pupil -->
+    <ellipse cx="72" cy="133" rx="5.5" ry="6.5" fill="#080618"/>
+    <!-- Highlights -->
+    <ellipse cx="76" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.94"/>
+    <ellipse cx="69" cy="137" rx="2.2" ry="1.8" fill="white" opacity="0.58"/>
+    <circle  cx="79" cy="138" r="1.6"           fill="white" opacity="0.42"/>
+    <!-- Upper eyelid crease -->
+    <path d="M56,124 Q72,117 88,124" stroke="#7868a0" stroke-width="1.8" fill="none" opacity="0.42" stroke-linecap="round"/>
   </g>
 
   <!-- RIGHT EYE -->
   <g class="bunny-eye">
-    <ellipse cx="128" cy="131" rx="18" ry="19" fill="#1a0f30" opacity="0.10"/>
-    <ellipse cx="128" cy="131" rx="16" ry="17" fill="#ede7f6"/>
-    <ellipse cx="128" cy="132" rx="12" ry="13" fill="#4838a0"/>
-    <ellipse cx="128" cy="132" rx="9.5" ry="10.5" fill="#5848b8"/>
-    <ellipse cx="128" cy="133" rx="7"  ry="8"   fill="#0a0820"/>
-    <ellipse cx="132" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.92"/>
-    <circle  cx="136" cy="136" r="2.2"           fill="white" opacity="0.52"/>
+    <ellipse cx="128" cy="131" rx="19" ry="20" fill="#180e2e" opacity="0.11"/>
+    <ellipse cx="128" cy="131" rx="16" ry="17" fill="#ece6f5"/>
+    <ellipse cx="128" cy="132" rx="12" ry="13" fill="#3828a0"/>
+    <ellipse cx="128" cy="132" rx="10" ry="11" fill="#4838b8"/>
+    <ellipse cx="128" cy="132" rx="7.5" ry="8.5" fill="#3020a8"/>
+    <ellipse cx="128" cy="133" rx="5.5" ry="6.5" fill="#080618"/>
+    <ellipse cx="132" cy="126" rx="5.5" ry="6"  fill="white" opacity="0.94"/>
+    <ellipse cx="125" cy="137" rx="2.2" ry="1.8" fill="white" opacity="0.58"/>
+    <circle  cx="135" cy="138" r="1.6"           fill="white" opacity="0.42"/>
+    <path d="M112,124 Q128,117 144,124" stroke="#7868a0" stroke-width="1.8" fill="none" opacity="0.42" stroke-linecap="round"/>
   </g>
 
   <!-- NOSE (heart shape) -->
   <path d="M100,155 C100,153 97.5,149 93,150 C88.5,151 88.5,157.5 100,165 C111.5,157.5 111.5,151 107,150 C102.5,149 100,153 100,155Z"
         fill="url(#bunnyNoseGrad)"/>
-  <ellipse cx="96" cy="153" rx="3" ry="1.8" fill="white" opacity="0.42"/>
+  <!-- Nose highlight -->
+  <ellipse cx="96" cy="153" rx="3" ry="1.8" fill="white" opacity="0.44"/>
+  <!-- Nostrils -->
+  <circle cx="95"  cy="154.5" r="2.2" fill="#8a1a30" opacity="0.65"/>
+  <circle cx="105" cy="154.5" r="2.2" fill="#8a1a30" opacity="0.65"/>
+  <!-- Philtrum groove -->
+  <line x1="100" y1="156" x2="100" y2="164" stroke="#903050" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/>
 
   <!-- WHISKER DOTS -->
-  <circle cx="86"  cy="162" r="3.5" fill="#c0b8b0" opacity="0.42"/>
-  <circle cx="86"  cy="172" r="3.5" fill="#c0b8b0" opacity="0.42"/>
-  <circle cx="114" cy="162" r="3.5" fill="#c0b8b0" opacity="0.42"/>
-  <circle cx="114" cy="172" r="3.5" fill="#c0b8b0" opacity="0.42"/>
+  <circle cx="86"  cy="162" r="3.5" fill="#beb6ae" opacity="0.42"/>
+  <circle cx="86"  cy="172" r="3.5" fill="#beb6ae" opacity="0.42"/>
+  <circle cx="114" cy="162" r="3.5" fill="#beb6ae" opacity="0.42"/>
+  <circle cx="114" cy="172" r="3.5" fill="#beb6ae" opacity="0.42"/>
 
   <!-- WHISKERS -->
-  <line x1="26"  y1="160" x2="83"  y2="163" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-  <line x1="28"  y1="168" x2="83"  y2="168" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-  <line x1="26"  y1="176" x2="83"  y2="173" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-  <line x1="117" y1="163" x2="174" y2="160" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-  <line x1="117" y1="168" x2="172" y2="168" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
-  <line x1="117" y1="173" x2="174" y2="176" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+  <line x1="24"  y1="159" x2="83"  y2="163" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
+  <line x1="26"  y1="167" x2="83"  y2="168" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
+  <line x1="24"  y1="175" x2="83"  y2="173" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
+  <line x1="117" y1="163" x2="176" y2="159" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
+  <line x1="117" y1="168" x2="174" y2="167" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
+  <line x1="117" y1="173" x2="176" y2="175" stroke="#a89888" stroke-width="1.5" stroke-linecap="round" opacity="0.52"/>
 
   <!-- MOUTH CLOSED -->
   <g class="mouth-closed-part">
-    <path d="M88,175 Q100,185 112,175" stroke="#9c5868" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M88,175 Q100,185 112,175" stroke="#904858" stroke-width="2.5" fill="none" stroke-linecap="round"/>
   </g>
 
   <!-- MOUTH OPEN -->
   <g class="mouth-open-part" style="display:none">
-    <path d="M88,175 Q100,194 112,175" stroke="#9c5868" stroke-width="2" fill="#be7080" stroke-linecap="round"/>
-    <rect x="92"    y="175" width="8.5" height="9" fill="#f5f0ec" rx="2"/>
-    <rect x="100.5" y="175" width="8.5" height="9" fill="#f5f0ec" rx="2"/>
-    <line x1="100.5" y1="175" x2="100.5" y2="184" stroke="#be7080" stroke-width="1.5"/>
-    <ellipse cx="100" cy="191" rx="10" ry="5.5" fill="#e87090" opacity="0.72"/>
+    <path d="M88,175 Q100,195 112,175" stroke="#904858" stroke-width="2" fill="#b86878" stroke-linecap="round"/>
+    <!-- Teeth -->
+    <rect x="92"    y="175" width="8.5" height="10" fill="#f5f0ec" rx="2"/>
+    <rect x="100.5" y="175" width="8.5" height="10" fill="#f5f0ec" rx="2"/>
+    <line x1="100.5" y1="175" x2="100.5" y2="185" stroke="#b86878" stroke-width="1.5"/>
+    <!-- Tongue -->
+    <ellipse cx="100" cy="192" rx="10.5" ry="6" fill="#e87090" opacity="0.75"/>
+    <ellipse cx="100" cy="191" rx="5"    ry="2.5" fill="#f090a8" opacity="0.5"/>
   </g>
 </svg>`;
 }

@@ -274,10 +274,10 @@ html, body {
     will-change: transform;
 }
 
-.bunny-popup .bunny-svg     { width: 130px; height: 140px; }
-.bunny-small .bunny-svg     { width: 68px;  height: 74px;  }
-.bunny-celebrate .bunny-svg { width: 135px; height: 145px; }
-.bunny-big .bunny-svg       { width: 135px; height: 145px; }
+.bunny-popup .bunny-svg     { width: 195px; height: 210px; }
+.bunny-small .bunny-svg     { width: 102px; height: 111px; }
+.bunny-celebrate .bunny-svg { width: 202px; height: 218px; }
+.bunny-big .bunny-svg       { width: 202px; height: 218px; }
 
 /* Idle head-turn for intro + clue bunnies only */
 #bunny-popup .bunny-svg,
