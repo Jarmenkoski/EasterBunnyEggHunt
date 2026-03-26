@@ -643,6 +643,16 @@ input[type="range"] {
     margin-bottom: 16px;
 }
 
+.upload-status {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.upload-status.ok  { background: #d4edda; color: #155724; }
+.upload-status.err { background: #f8d7da; color: #721c24; }
+
 .settings-actions {
     padding-top: 8px;
     border-top: 1px solid #eee;

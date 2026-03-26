@@ -619,25 +619,57 @@ function setupNameInputs() {
     });
 }
 
+function showUploadStatus(msg, isError) {
+    const el = document.getElementById('upload-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'upload-status ' + (isError ? 'err' : 'ok');
+    el.style.display = 'block';
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
 function setupFileUpload() {
     const input = document.getElementById('image-upload');
     input.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
+        let added = 0;
+        let failed = 0;
+        let quotaFull = false;
+
         for (const file of files) {
+            if (quotaFull) break;
+            let dataUrl;
             try {
-                const dataUrl = await compressImage(file, 1200, 0.80);
-                state.eggs.push({ id: Date.now() + Math.random(), dataUrl, name: file.name });
+                dataUrl = await compressImage(file, 800, 0.65);
             } catch (err) {
-                console.error('Kuvan lukeminen epäonnistui:', err);
+                console.error('Pakkaus epäonnistui:', file.name, err);
+                failed++;
+                continue;
+            }
+            // Try saving one image at a time to detect quota early
+            const prev = [...state.eggs];
+            state.eggs.push({ id: Date.now() + Math.random(), dataUrl, name: file.name });
+            try {
+                saveEggs();
+                added++;
+            } catch (err) {
+                // Quota exceeded — roll back this image
+                state.eggs = prev;
+                quotaFull = true;
             }
         }
-        try {
-            saveEggs();
-        } catch (e) {
-            alert('Kuvien tallennus epäonnistui: tallennustila täynnä. Poista vanhoja kuvia.');
-        }
+
         renderSettingsList();
         input.value = '';
+
+        if (quotaFull) {
+            showUploadStatus(`Tallennustila täynnä! Lisätty ${added}/${files.length} kuvaa. Poista vanhoja kuvia ensin.`, true);
+        } else if (failed > 0) {
+            showUploadStatus(`${added} kuvaa lisätty, ${failed} epäonnistui.`, true);
+        } else if (added > 0) {
+            showUploadStatus(`✓ ${added} kuva${added > 1 ? 'a' : ''} lisätty!`, false);
+        }
     });
 }
 
