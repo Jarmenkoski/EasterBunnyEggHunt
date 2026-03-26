@@ -595,13 +595,46 @@ function setupNameInputs() {
 function setupFileUpload() {
     const input = document.getElementById('image-upload');
     input.addEventListener('change', async (e) => {
-        for (const file of Array.from(e.target.files)) {
-            const dataUrl = await fileToDataUrl(file);
-            state.eggs.push({ id: Date.now() + Math.random(), dataUrl, name: file.name });
+        const files = Array.from(e.target.files);
+        for (const file of files) {
+            try {
+                const dataUrl = await compressImage(file, 1200, 0.80);
+                state.eggs.push({ id: Date.now() + Math.random(), dataUrl, name: file.name });
+            } catch (err) {
+                console.error('Kuvan lukeminen epäonnistui:', err);
+            }
         }
-        saveEggs();
+        try {
+            saveEggs();
+        } catch (e) {
+            alert('Kuvien tallennus epäonnistui: tallennustila täynnä. Poista vanhoja kuvia.');
+        }
         renderSettingsList();
         input.value = '';
+    });
+}
+
+function compressImage(file, maxPx, quality) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onerror = reject;
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                if (w > maxPx || h > maxPx) {
+                    if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+                    else        { w = Math.round(w * maxPx / h); h = maxPx; }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
     });
 }
 
