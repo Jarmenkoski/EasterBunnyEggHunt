@@ -585,6 +585,8 @@ function crackEgg() {
         speechEl.classList.remove('hidden');
         speechEl.style.animation = 'fadeSlideIn 0.5s ease';
         const hei = buildHeiGreeting();
+        const heiHtml = hei ? `<p>${escapeHtml(hei)}</p>` : '';
+        speechEl.innerHTML = `${heiHtml}<p>Minä olen <strong>Pääsiäispupu</strong>! 🐰</p><p>Oletko valmis pääsiäismunajahtiiin?</p>`;
         speak(`${hei ? hei + ' ' : ''}Minä olen Pääsiäispupu! Oletko valmis pääsiäismunajahtiiin?`);
     }, 2300);
 
