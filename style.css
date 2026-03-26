@@ -479,6 +479,7 @@ html, body {
     background: #fff;
     border-radius: 14px;
     padding: 14px 16px;
+    overflow: hidden;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     border: 2px solid #e8d5f0;
@@ -496,31 +497,48 @@ html, body {
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
-    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .name-input-row label {
     font-size: 0.9rem;
     font-weight: bold;
     color: #5a3e00;
-    width: 56px;
+    width: 54px;
     flex-shrink: 0;
 }
 
 .name-input-row input {
-    flex: 1;
+    flex: 1 1 0;
+    width: 0;           /* force flex to control width, not content */
     min-width: 0;
     border: 2px solid #d0b8e8;
     border-radius: 10px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 1rem;
     color: #333;
     outline: none;
+    box-sizing: border-box;
     transition: border-color 0.2s;
 }
 
 .name-input-row input:focus {
     border-color: #9b59b6;
+}
+
+/* Voice select row stacks vertically so long names don't overflow */
+.name-input-row.voice-row {
+    flex-wrap: wrap;
+    align-items: center;
+}
+.name-input-row.voice-row label {
+    flex-shrink: 0;
+}
+.name-input-row.voice-row select {
+    flex: 1 1 180px;
+    width: 0;
+    min-width: 0;
 }
 
 .btn-add-child {
@@ -545,9 +563,6 @@ html, body {
 }
 
 #voice-select {
-    flex: 1;
-    min-width: 0;
-    max-width: 100%;
     border: 2px solid #d0b8e8;
     border-radius: 10px;
     padding: 7px 10px;
@@ -555,8 +570,8 @@ html, body {
     color: #333;
     background: #fff;
     outline: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 #voice-select:focus { border-color: #9b59b6; }
@@ -651,6 +666,7 @@ input[type="range"] {
     padding: 4px 8px;
     cursor: pointer;
     font-size: 0.85rem;
+    flex-shrink: 0;
     transition: background 0.2s;
 }
 
