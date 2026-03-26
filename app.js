@@ -383,22 +383,25 @@ function saveEggs() {
 }
 
 // ===== SPEECH + MOUTH ANIMATION =====
-let talkInterval = null;
+let mouthCloseTimer = null;
 
-function startMouthAnimation() {
-    stopMouthAnimation();
-    let open = false;
-    talkInterval = setInterval(() => {
-        open = !open;
-        document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = open ? '' : 'none');
-        document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = open ? 'none' : '');
-    }, 165);
+function setMouthOpen(open) {
+    document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = open ? '' : 'none');
+    document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = open ? 'none' : '');
 }
 
 function stopMouthAnimation() {
-    if (talkInterval) { clearInterval(talkInterval); talkInterval = null; }
-    document.querySelectorAll('.mouth-open-part').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.mouth-closed-part').forEach(el => el.style.display = '');
+    clearTimeout(mouthCloseTimer);
+    mouthCloseTimer = null;
+    setMouthOpen(false);
+}
+
+// Called on each word boundary: open mouth briefly proportional to word length
+function pulseMouth(charLength, rate) {
+    clearTimeout(mouthCloseTimer);
+    setMouthOpen(true);
+    const openMs = Math.min(400, Math.max(80, (charLength * 55) / rate));
+    mouthCloseTimer = setTimeout(() => setMouthOpen(false), openMs);
 }
 
 function speak(text) {
@@ -406,11 +409,9 @@ function speak(text) {
     window.speechSynthesis.cancel();
     stopMouthAnimation();
 
-    // Face forward during speech
     document.querySelectorAll('.bunny-svg').forEach(b => b.classList.add('bunny-speaking'));
 
     const vs = loadVoiceSettings();
-    // Always fetch fresh voices; fall back to cache if list is momentarily empty
     const freshVoices = speechSynthesis.getVoices();
     const voiceList = freshVoices.length > 0 ? freshVoices : cachedVoices;
     const voice = vs.voiceName ? voiceList.find(v => v.name === vs.voiceName) : null;
@@ -422,13 +423,14 @@ function speak(text) {
     } else {
         utterance.lang = 'fi-FI';
     }
+    const rate = vs.rate ?? 1.0;
     utterance.pitch  = vs.pitch ?? 1.5;
-    utterance.rate   = vs.rate  ?? 1.0;
+    utterance.rate   = rate;
     utterance.volume = 1;
 
-    // Safety fallback: stop animation if onend never fires (Chrome bug at high rates)
+    // Safety guard: stop if onend never fires (Chrome bug at high rates)
     const wordCount = text.split(/\s+/).length;
-    const estimatedMs = Math.max(2000, (wordCount / 2.5) * (1000 / utterance.rate)) + 1500;
+    const estimatedMs = Math.max(2000, (wordCount / 2.5) * (1000 / rate)) + 2000;
     let animGuard = setTimeout(() => stopSpeaking(), estimatedMs);
 
     function stopSpeaking() {
@@ -437,12 +439,37 @@ function speak(text) {
         document.querySelectorAll('.bunny-svg').forEach(b => b.classList.remove('bunny-speaking'));
     }
 
-    // Mouth moves ONLY when audio actually starts
-    utterance.onstart = () => startMouthAnimation();
-    utterance.onend   = () => stopSpeaking();
-    utterance.onerror = () => stopSpeaking();
+    // onboundary fires at each word — most reliable sync available in Web Speech API
+    let boundaryFired = false;
+    utterance.onboundary = (e) => {
+        if (e.name !== 'word') return;
+        boundaryFired = true;
+        pulseMouth(e.charLength || 4, rate);
+    };
 
-    // Chrome needs a brief pause after cancel() before a new speak() will start
+    // Fallback interval if onboundary never fires (some voices/browsers don't support it)
+    let fallbackInterval = null;
+    utterance.onstart = () => {
+        setTimeout(() => {
+            if (!boundaryFired) {
+                let open = false;
+                fallbackInterval = setInterval(() => {
+                    open = !open;
+                    setMouthOpen(open);
+                }, 160);
+            }
+        }, 300);
+    };
+
+    utterance.onend = () => {
+        clearInterval(fallbackInterval);
+        stopSpeaking();
+    };
+    utterance.onerror = () => {
+        clearInterval(fallbackInterval);
+        stopSpeaking();
+    };
+
     setTimeout(() => window.speechSynthesis.speak(utterance), 50);
 }
 
