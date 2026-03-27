@@ -458,11 +458,14 @@ function renderNamesList() {
     names.forEach((name, i) => {
         const row = document.createElement('div');
         row.className = 'name-input-row';
+        const delBtn = names.length > 1
+            ? `<button class="btn-icon delete" onclick="removeChild(${i})" title="Poista">✕</button>`
+            : '';
         row.innerHTML = `
             <label>Lapsi ${i + 1}</label>
             <input type="text" maxlength="30" autocomplete="off" value="${escapeHtml(name)}"
                    oninput="updateChildName(${i}, this.value)">
-            <button class="btn-icon delete" onclick="removeChild(${i})" title="Poista">✕</button>`;
+            ${delBtn}`;
         container.appendChild(row);
     });
 }
