@@ -455,17 +455,33 @@ function renderNamesList() {
     if (!container) return;
     const names = loadNames();
     container.innerHTML = '';
-    names.forEach((name, i) => {
+    names.forEach((name, idx) => {
         const row = document.createElement('div');
         row.className = 'name-input-row';
-        const delBtn = names.length > 1
-            ? `<button class="btn-icon delete" onclick="deleteChild(${i})" title="Poista">✕</button>`
-            : '';
-        row.innerHTML = `
-            <label>Lapsi ${i + 1}</label>
-            <input type="text" maxlength="30" autocomplete="off" value="${escapeHtml(name)}"
-                   oninput="updateChildName(${i}, this.value)">
-            ${delBtn}`;
+
+        const label = document.createElement('label');
+        label.textContent = `Lapsi ${idx + 1}`;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 30;
+        input.autocomplete = 'off';
+        input.value = name;
+        input.addEventListener('input', () => updateChildName(idx, input.value));
+
+        row.appendChild(label);
+        row.appendChild(input);
+
+        if (names.length > 1) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-icon delete';
+            btn.title = 'Poista';
+            btn.textContent = '✕';
+            btn.addEventListener('click', () => deleteChild(idx));
+            row.appendChild(btn);
+        }
+
         container.appendChild(row);
     });
 }
