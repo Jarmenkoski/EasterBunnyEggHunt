@@ -459,7 +459,7 @@ function renderNamesList() {
         const row = document.createElement('div');
         row.className = 'name-input-row';
         const delBtn = names.length > 1
-            ? `<button class="btn-icon delete" onclick="removeChild(${i})" title="Poista">✕</button>`
+            ? `<button class="btn-icon delete" onclick="deleteChild(${i})" title="Poista">✕</button>`
             : '';
         row.innerHTML = `
             <label>Lapsi ${i + 1}</label>
@@ -486,9 +486,9 @@ function addChild() {
     if (inputs.length) inputs[inputs.length - 1].focus();
 }
 
-function removeChild(index) {
+function deleteChild(index) {
     const names = loadNames();
-    if (names.length <= 1) return; // keep at least one
+    if (names.length <= 1) return;
     names.splice(index, 1);
     saveNames(names);
     renderNamesList();
